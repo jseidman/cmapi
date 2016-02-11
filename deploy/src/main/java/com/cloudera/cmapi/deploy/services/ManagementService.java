@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.cmapi.deploy;
+package com.cloudera.cmapi.deploy.services;
 
 import com.cloudera.api.DataView;
 
@@ -28,6 +28,8 @@ import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v8.ClouderaManagerResourceV8;
 import com.cloudera.api.v8.MgmtServiceResourceV8;
+
+import com.cloudera.cmapi.deploy.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,23 +97,27 @@ public class ManagementService {
         cmResource.getMgmtServiceResource().setupCMS(cmService);
       }
       
-      // Now loop through each role config group in the Cloudera Management Services:
+      // Loop through each role config group in the Cloudera Management Services:
       for (ApiRoleConfigGroup roleConfigGroup : 
              // com.cloudera.api.v*.MgmtRoleConfigGroupsResource.readRoleConfigGroups()
              cmResource.getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
 
+        // Fetch config parameters for each service, and add to role group
+        // object:
         ApiRoleConfigGroup newRoleConfigGroup = new ApiRoleConfigGroup();
         ApiServiceConfig serviceConfig = new ApiServiceConfig();
         Ini.Section section = config.get(roleConfigGroup.getRoleType());
         if (section != null && section.size() > 0) {
-          System.out.println("role type=" + roleConfigGroup.getRoleType() +
-                             " section size=" + section.size());
+          LOG.debug("role type=" + roleConfigGroup.getRoleType() +
+                    " section size=" + section.size());
           for (Map.Entry<String, String> entry : section.entrySet()) {
             serviceConfig.add(new ApiConfig(entry.getKey(), entry.getValue()));
           }
         }
         newRoleConfigGroup.setConfig(serviceConfig);
-        
+ 
+        // Then update management service configs on server:
+        // (com.cloudera.api.v*.RoleConfigGroupsResource.updateRoleConfigGroup())
         cmResource.getMgmtServiceResource()
           .getRoleConfigGroupsResource()
           .updateRoleConfigGroup(roleConfigGroup.getName(), newRoleConfigGroup,

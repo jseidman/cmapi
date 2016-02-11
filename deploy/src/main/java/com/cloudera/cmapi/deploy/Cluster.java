@@ -26,6 +26,8 @@ import com.cloudera.api.model.ApiParcel;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v10.RootResourceV10;
 
+import com.cloudera.cmapi.deploy.services.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,36 +169,40 @@ public class Cluster {
     final ParcelResource parcelResource = apiRoot.getClustersResource()
       .getParcelsResource(name).getParcelResource("CDH", parcelVersion.toString());
 
-    parcelResource.startDownloadCommand();
-    while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
-      LOG.debug("Waiting for CDH parcel to complete downloading");
-      try {
-        Thread.sleep(15000);
-      } catch (InterruptedException e) {
+    // Confirm this parcel isn't already activated on the cluster, then 
+    // go through the steps to download, distribute, and activate:
+    if (parcelResource.readParcel().getStage().equals("ACTIVATED")) {
+      LOG.info("CDH parcel already activated, skipping parcel deploy steps...");
+    } else {
+      parcelResource.startDownloadCommand();
+      while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
+        LOG.debug("Waiting for CDH parcel to complete downloading");
+        try {
+          Thread.sleep(15000);
+        } catch (InterruptedException e) {
+        }
       }
-    }
-    LOG.info("Completed download of CDH Parcel");
+      LOG.info("Completed download of CDH Parcel");
 
-    parcelResource.startDistributionCommand();
-    while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
-      LOG.debug("Waiting for CDH parcel to complete distribution");
-      try {
-        Thread.sleep(15000);
-      } catch (InterruptedException e) {
+      parcelResource.startDistributionCommand();
+      while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
+        LOG.debug("Waiting for CDH parcel to complete distribution");
+        try {
+          Thread.sleep(15000);
+        } catch (InterruptedException e) {
+        }
       }
-    }
-    LOG.info("Completed distribution of CDH Parcel");
+      LOG.info("Completed distribution of CDH Parcel");
 
-    parcelResource.activateCommand();
-    while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
-      LOG.debug("Waiting for CDH parcel to complete activation");
-      try {
-        Thread.sleep(15000);
-      } catch (InterruptedException e) {
+      parcelResource.activateCommand();
+      while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
+        LOG.debug("Waiting for CDH parcel to complete activation");
+        try {
+          Thread.sleep(15000);
+        } catch (InterruptedException e) {
+        }
       }
+      LOG.info("Completed activation of CDH Parcel");
     }
-    LOG.info("Completed activation of CDH Parcel");
   }
-
-
 }

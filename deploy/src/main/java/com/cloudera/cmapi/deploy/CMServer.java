@@ -26,6 +26,8 @@ import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v8.ClouderaManagerResourceV8;
 import com.cloudera.api.v8.MgmtServiceResourceV8;
 
+import com.cloudera.cmapi.deploy.services.ManagementService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -54,7 +56,7 @@ public class CMServer {
   /**
    * Cloudera Manager management service associated with this instance.
    */
-  private Service cmService;
+  //private Service cmService;
 
   /**
    * Config object containing parameters required for deploying, etc.
