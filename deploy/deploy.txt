@@ -47,6 +47,9 @@ main():
 ** Start management services (mgmt.start.wait()
 * Deploy parcels (deploy_parcels)
 ** get CDH parcels; distribute parcels; activate parcels
+* deploy ZK (deploy_zookeeper)
+** use cluster object to create ZK service (cluster.create_service())
+** 
 * create HDFS service
 ** get role config groups for NN, SNN, and DNs
 ** create config objects

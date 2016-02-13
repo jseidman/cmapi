@@ -69,6 +69,7 @@ public class CMApiDeploy {
     LOG.info("Successfully initialized clusters, deploying management service...");
     cm.deployManagementService();
     cm.deployParcels();
+    cm.deployClusterServices();
   }
 
   private RootResourceV10 getRootResource(Wini config) {

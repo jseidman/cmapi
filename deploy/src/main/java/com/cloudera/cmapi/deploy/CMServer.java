@@ -100,4 +100,13 @@ public class CMServer {
       cluster.provisionParcels();
     }
   }
+
+  public void deployClusterServices() {
+    LOG.info("Deploying cluster services");
+    for (Cluster cluster : clusters) {
+      LOG.info("Deploying services for cluster " + cluster.getName());
+      cluster.provisionServices();
+    }
+  }
+
 }

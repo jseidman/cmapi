@@ -26,7 +26,8 @@ import com.cloudera.api.model.ApiParcel;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v10.RootResourceV10;
 
-import com.cloudera.cmapi.deploy.services.Service;
+import com.cloudera.cmapi.deploy.services.ClusterService;
+import com.cloudera.cmapi.deploy.services.ZooKeeperService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,7 @@ public class Cluster {
   /**
    * Services (HDFS, YARN, etc. associated with this cluster.
    */
-  private List<Service> services;
+  private List<ClusterService> services;
 
   /**
    * Config parameters.
@@ -204,5 +205,10 @@ public class Cluster {
       }
       LOG.info("Completed activation of CDH Parcel");
     }
+  }
+
+  public void provisionServices() {
+    ZooKeeperService zk = new ZooKeeperService();
+    zk.deploy(config, apiRoot.getClustersResource().getServicesResource(name));
   }
 }
