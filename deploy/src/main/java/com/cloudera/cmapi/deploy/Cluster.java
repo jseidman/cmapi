@@ -87,7 +87,8 @@ public class Cluster {
     this.config = config;
     name = config.get("CLUSTER", Constants.CLUSTER_NAME_PARAMETER);
     version = config.get("CLUSTER", Constants.CLUSTER_CDH_VERSION_PARAMETER);
-    clusterHosts = config.get("CLUSTER", Constants.CLUSTER_HOSTS_PARAMETER).split(",");
+    clusterHosts =
+      config.get("CLUSTER", Constants.CLUSTER_HOSTS_PARAMETER).split(",");
     this.apiRoot = apiRoot;
   }
 

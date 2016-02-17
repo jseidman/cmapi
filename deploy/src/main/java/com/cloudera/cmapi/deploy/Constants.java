@@ -27,6 +27,9 @@ public class Constants {
   public static String CLUSTER_NAME_PARAMETER = "cluster_name";
   public static String CLUSTER_CDH_VERSION_PARAMETER = "cluster_version";
   public static String CLUSTER_HOSTS_PARAMETER = "cluster_hosts";
-
+  public static String ZOOKEEPER_NAME_PARAMETER = "zk_name";
+  public static String ZOOKEEPER_HOSTS_PARAMETER = "zk_hosts";
+  public static String ZOOKEEPER_SERVICE_CONFIG_SECTION = "ZOOKEEPER_SERVICE_CONFIG";
+  public static String ZOOKEEPER_ROLE_CONFIG_SECTION = "ZOOKEEPER_ROLE_CONFIG";
 }
 

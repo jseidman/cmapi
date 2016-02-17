@@ -121,7 +121,8 @@ public class ManagementService {
         cmResource.getMgmtServiceResource()
           .getRoleConfigGroupsResource()
           .updateRoleConfigGroup(roleConfigGroup.getName(), newRoleConfigGroup,
-                                 "Updating config group");
+                                 ("Updating Management Services config for " +
+                                  roleConfigGroup.getName()));
 
       }
     }
