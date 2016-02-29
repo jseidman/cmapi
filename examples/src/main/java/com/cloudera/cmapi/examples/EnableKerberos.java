@@ -132,8 +132,9 @@ public class EnableKerberos {
 
     // Use the CM Resource object to set required Kerberos specific config
     // parameters.
-    // To see all available config parameters, including the names to use
-    // when populating values, use the following API call:
+    // We're just setting the minimal required parameters here. To see all
+    // available config parameters, including the names to use when populating
+    // values, use the following API call:
     // CM_HOST:7180/api/v11/cm/config?view=full
     System.out.println("Configuring Kerberos params in CM...");
     ApiConfigList cmConfigList = new ApiConfigList();
