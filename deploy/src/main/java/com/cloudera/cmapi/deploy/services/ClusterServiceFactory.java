@@ -16,16 +16,22 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
-import com.cloudera.api.v10.ServicesResourceV10;
+public class ClusterServiceFactory {
 
-import org.ini4j.Wini;
+  private enum services { ZOOKEEPER, HDFS, YARN, HBASE };
 
-/**
- *
- * Valid service types as of CDH5: HDFS, MAPREDUCE, HBASE, OOZIE, ZOOKEEPER,
- * HUE, YARN, IMPALA, FLUME, HIVE, SOLR, SQOOP, KS_INDEXER, SQOOP_CLIENT, 
- * SENTRY, ACCUMULO16, KMS, SPARK_ON_YARN 
- */
-public interface ClusterService {
-  void deploy(Wini config, ServicesResourceV10 servicesResource);
+  public ClusterService getClusterService(String type) {
+
+    if (type == null) {
+      return null;
+    }
+    if (services.ZOOKEEPER.name().equalsIgnoreCase(type)) {
+      return new ZooKeeperService();
+    }
+    if (services.HDFS.name().equalsIgnoreCase(type)) {
+      return new HDFSService();
+    }
+
+    return null;
+  }
 }

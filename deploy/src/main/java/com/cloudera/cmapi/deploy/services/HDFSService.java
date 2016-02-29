@@ -38,65 +38,103 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
-public class ZooKeeperService implements ClusterService {
+public class HDFSService implements ClusterService {
 
-  private static String SERVICE_TYPE = "ZOOKEEPER";
-  private static final Logger LOG = Logger.getLogger(ZooKeeperService.class);
+  private static String SERVICE_TYPE="HDFS";
+  private enum RoleTypes { DATANODE, NAMENODE, SECONDARYNAMENODE, BALANCER, GATEWAY, HTTPFS, FAILOVERCONTROLLER, JOURNALNODE, NFSGATEWAY };
+  private String name;
+  private static final Logger LOG = Logger.getLogger(HDFSService.class);
 
   public void deploy(Wini config, ServicesResourceV10 servicesResource) {
 
     boolean provisionRequired = false;
-
+    name = config.get(Constants.HDFS_CONFIG_SECTION, 
+                      Constants.HDFS_SERVICE_NAME_PARAMETER);
     try {
       provisionRequired = 
-        servicesResource.readService(config.get("CLUSTER", 
-                                                Constants.ZOOKEEPER_NAME_PARAMETER)) == null;
+        servicesResource.readService(name) == null;
     } catch (Exception e) {
       provisionRequired = true;
     }
 
     if (!provisionRequired) {
-      LOG.info("ZooKeeper service already deployed. Skipping...");
+      LOG.info("HDFS services already deployed. Skipping...");
     } else {
-      LOG.info("Deploying ZooKeeper service...");
+      LOG.info("Deploying HDFS services...");
+      ApiServiceList hdfsServices = new ApiServiceList();
+      ApiService hdfsService = new ApiService();
+      hdfsService.setType(SERVICE_TYPE);
+      hdfsService.setName(name);
 
-      ApiServiceList apiServices = new ApiServiceList();
-      ApiService zkService = new ApiService();
-      zkService.setType(SERVICE_TYPE);
-      String name = config.get("CLUSTER", 
-                               Constants.ZOOKEEPER_NAME_PARAMETER);
-      LOG.debug("Setting ZooKeeper service name to " + name);
-      zkService.setName(name);
-      
       ApiServiceConfig serviceConfig = new ApiServiceConfig();
       Ini.Section serviceConfigSection = 
-        config.get(Constants.ZOOKEEPER_SERVICE_CONFIG_SECTION);
+        config.get(Constants.HDFS_SERVICE_CONFIG_SECTION);
       if (serviceConfigSection != null && serviceConfigSection.size() > 0) {
         for (Map.Entry<String, String> entry : serviceConfigSection.entrySet()) {
-          LOG.debug("Adding ZooKeeper service config key/value: " +
+          LOG.debug("Adding HDFS service config key/value: " +
                     entry.getKey() + "=" + entry.getValue());
           serviceConfig.add(new ApiConfig(entry.getKey(), entry.getValue()));
         }
       }
-      zkService.setConfig(serviceConfig);
- 
-      String[] zkHosts = 
-        config.get("CLUSTER", Constants.ZOOKEEPER_HOSTS_PARAMETER).split(",");
-      List<ApiRole> apiRoles = new ArrayList<ApiRole>();
-      for (String host : zkHosts) {
+      hdfsService.setConfig(serviceConfig);
+      
+      List<ApiRole> hdfsRoles = new ArrayList<ApiRole>();
+      
+      LOG.info("Adding NameNode role...");
+      ApiRole nnRole = new ApiRole();
+      // Optional as of v6:
+      // nnRole.setName("NAMENODE");
+      nnRole.setType("NAMENODE");
+      nnRole.setHostRef(new ApiHostRef(config.get(Constants.HDFS_CONFIG_SECTION, 
+                                                  Constants.HDFS_NAMENODE_HOST_PARAMETER)));
+      hdfsRoles.add(nnRole);
+
+      LOG.info("Adding Secondary NameNode role...");
+      ApiRole snnRole = new ApiRole();
+      // Optional as of v6:
+      // nnRole.setName("SECONDARYNAMENODE");
+      snnRole.setType("SECONDARYNAMENODE");
+      snnRole.setHostRef(new ApiHostRef(config.get(Constants.HDFS_CONFIG_SECTION, 
+                                                  Constants.HDFS_SECONDARYNAMENODE_HOST_PARAMETER)));
+      hdfsRoles.add(snnRole);
+
+      LOG.info("Adding DataNode roles...");
+      String[] dnHosts = 
+        config.get(Constants.HDFS_CONFIG_SECTION, Constants.HDFS_DATANODE_HOSTS_PARAMETER).split(",");
+
+      for (String host : dnHosts) {
         ApiRole apiRole = new ApiRole();
         // Optional as of v6:
         // apiRole.setName();
-        apiRole.setType("SERVER");
-        LOG.debug("Adding ZooKeeper host " + host);
+        apiRole.setType("DATANODE");
+        LOG.debug("Adding DataNode host " + host);
         apiRole.setHostRef(new ApiHostRef(host));
-        apiRoles.add(apiRole);
+        hdfsRoles.add(apiRole);
       }
-      zkService.setRoles(apiRoles);
-      apiServices.add(zkService);
-      servicesResource.createServices(apiServices);
-      LOG.info("Added ZooKeeper service " + name);
 
+      LOG.info("Adding Gateway roles...");
+      String[] gwHosts = 
+        config.get(Constants.HDFS_CONFIG_SECTION, Constants.HDFS_GATEWAY_HOSTS_PARAMETER).split(",");
+
+      for (String host : gwHosts) {
+        ApiRole apiRole = new ApiRole();
+        // Optional as of v6:
+        // apiRole.setName();
+        apiRole.setType("GATEWAY");
+        LOG.debug("Adding HDFS Gateway host " + host);
+        apiRole.setHostRef(new ApiHostRef(host));
+        hdfsRoles.add(apiRole);
+      }
+
+      for (ApiRole role : hdfsRoles) {
+        LOG.debug("role type=" + role.getType() + ", host=" + role.getHostRef());
+      }
+      
+      hdfsService.setRoles(hdfsRoles);
+      hdfsServices.add(hdfsService);
+      servicesResource.createServices(hdfsServices);
+      LOG.info("Created HDFS services");
+  
       String roleType = null;
       for (ApiRoleConfigGroup roleConfigGroup : servicesResource.getRoleConfigGroupsResource(name).readRoleConfigGroups()) {
         roleType = roleConfigGroup.getRoleType();
@@ -104,8 +142,10 @@ public class ZooKeeperService implements ClusterService {
         ApiConfigList roleConfigList = new ApiConfigList();
         Ini.Section roleConfigSection = config.get(roleType);
         if (roleConfigSection != null && roleConfigSection.size() > 0) {
+          LOG.info("Found configuration params for role type=" + roleType);
           for (Map.Entry<String, String> entry : roleConfigSection.entrySet()) {
-            LOG.debug("Adding ZooKeeper role config key/value: " +
+            LOG.debug("Role type=" + roleType +
+                      ", adding config key/value: " +
                       entry.getKey() + "=" + entry.getValue());
             roleConfigList.add(new ApiConfig(entry.getKey(), entry.getValue()));
           }
@@ -115,7 +155,7 @@ public class ZooKeeperService implements ClusterService {
         servicesResource.getRoleConfigGroupsResource(name).
           updateRoleConfigGroup(roleConfigGroup.getName(), 
                                 apiRoleConfigGroup,
-                                ("Updating ZooKeeper config for " +
+                                ("Updating HDFS role config for " +
                                  roleConfigGroup.getName()));
       }
     }

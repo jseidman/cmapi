@@ -18,18 +18,27 @@ package com.cloudera.cmapi.deploy;
 
 public class Constants {
 
-  public static String CM_PUBLIC_HOSTNAME_PARAMETER = "cm_public_hostname";
-  public static String CM_PRIVATE_HOSTNAME_PARAMETER = "cm_private_hostname";
-  public static String CM_USERNAME_PARAMETER = "cm_user";
-  public static String CM_PASSWORD_PARAMETER = "cm_password";
-  public static String CM_MGMT_SERVICE_NAME_PARAMETER = "mgmt_service_name";
-  public static String CM_MANAGEMENT_ROLETYPES_PARAMETER = "cm_management_roletypes";
-  public static String CLUSTER_NAME_PARAMETER = "cluster_name";
-  public static String CLUSTER_CDH_VERSION_PARAMETER = "cluster_version";
-  public static String CLUSTER_HOSTS_PARAMETER = "cluster_hosts";
-  public static String ZOOKEEPER_NAME_PARAMETER = "zk_name";
-  public static String ZOOKEEPER_HOSTS_PARAMETER = "zk_hosts";
-  public static String ZOOKEEPER_SERVICE_CONFIG_SECTION = "ZOOKEEPER_SERVICE_CONFIG";
-  public static String ZOOKEEPER_ROLE_CONFIG_SECTION = "ZOOKEEPER_ROLE_CONFIG";
+  public static final String CM_PUBLIC_HOSTNAME_PARAMETER = "cm_public_hostname";
+  public static final String CM_PRIVATE_HOSTNAME_PARAMETER = "cm_private_hostname";
+  public static final String CM_USERNAME_PARAMETER = "cm_user";
+  public static final String CM_PASSWORD_PARAMETER = "cm_password";
+  public static final String CM_MGMT_SERVICE_NAME_PARAMETER = "mgmt_service_name";
+  public static final String CM_MANAGEMENT_ROLETYPES_PARAMETER = "cm_management_roletypes";
+  public static final String CLUSTER_CONFIG_SECTION="CLUSTER";
+  public static final String CLUSTER_NAME_PARAMETER = "cluster_name";
+  public static final String CLUSTER_CDH_VERSION_PARAMETER = "cluster_version";
+  public static final String CLUSTER_HOSTS_PARAMETER = "cluster_hosts";
+  public static final String CLUSTER_SERVICES_PARAMETER = "services";
+  public static final String ZOOKEEPER_NAME_PARAMETER = "zk_name";
+  public static final String ZOOKEEPER_HOSTS_PARAMETER = "zk_hosts";
+  public static final String ZOOKEEPER_SERVICE_CONFIG_SECTION = "ZOOKEEPER_SERVICE_CONFIG";
+  public static final String ZOOKEEPER_ROLE_CONFIG_SECTION = "ZOOKEEPER_ROLE_CONFIG";
+  public static final String HDFS_CONFIG_SECTION="HDFS";
+  public static final String HDFS_SERVICE_CONFIG_SECTION="HDFS_SERVICE_CONFIG";
+  public static final String HDFS_SERVICE_NAME_PARAMETER="hdfs_name";
+  public static final String HDFS_NAMENODE_HOST_PARAMETER="hdfs_namenode_host";
+  public static final String HDFS_SECONDARYNAMENODE_HOST_PARAMETER="hdfs_secondary_namenode_host";
+  public static final String HDFS_DATANODE_HOSTS_PARAMETER="hdfs_datanode_hosts";
+  public static final String HDFS_GATEWAY_HOSTS_PARAMETER="hdfs_gateway_hosts";
 }
 

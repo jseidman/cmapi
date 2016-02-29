@@ -25,9 +25,10 @@ import com.cloudera.api.model.ApiHostRefList;
 import com.cloudera.api.model.ApiParcel;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v10.RootResourceV10;
+import com.cloudera.api.v10.ServicesResourceV10;
 
 import com.cloudera.cmapi.deploy.services.ClusterService;
-import com.cloudera.cmapi.deploy.services.ZooKeeperService;
+import com.cloudera.cmapi.deploy.services.ClusterServiceFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,10 +86,13 @@ public class Cluster {
   public Cluster(RootResourceV10 apiRoot, Wini config) {
 
     this.config = config;
-    name = config.get("CLUSTER", Constants.CLUSTER_NAME_PARAMETER);
-    version = config.get("CLUSTER", Constants.CLUSTER_CDH_VERSION_PARAMETER);
+    name = config.get(Constants.CLUSTER_CONFIG_SECTION, 
+                      Constants.CLUSTER_NAME_PARAMETER);
+    version = config.get(Constants.CLUSTER_CONFIG_SECTION, 
+                         Constants.CLUSTER_CDH_VERSION_PARAMETER);
     clusterHosts =
-      config.get("CLUSTER", Constants.CLUSTER_HOSTS_PARAMETER).split(",");
+      config.get(Constants.CLUSTER_CONFIG_SECTION,
+                 Constants.CLUSTER_HOSTS_PARAMETER).split(",");
     this.apiRoot = apiRoot;
   }
 
@@ -209,7 +213,22 @@ public class Cluster {
   }
 
   public void provisionServices() {
-    ZooKeeperService zk = new ZooKeeperService();
-    zk.deploy(config, apiRoot.getClustersResource().getServicesResource(name));
+    ServicesResourceV10 servicesResource =
+      apiRoot.getClustersResource().getServicesResource(name);
+    // TODO: Replace with loop through list of services to be deployed:
+    // Get list of services to deploy as part of this cluster:
+    final String[] servicesToDeploy=
+      config.get(Constants.CLUSTER_CONFIG_SECTION,
+                 Constants.CLUSTER_SERVICES_PARAMETER).split(",");
+    ClusterServiceFactory factory = new ClusterServiceFactory();
+    for (String service : servicesToDeploy) {
+      ClusterService clusterService = factory.getClusterService(service);
+      if (clusterService != null) {
+        LOG.info("Deploying " + service + " service for cluster " + name);
+        clusterService.deploy(config, servicesResource);
+      } else {
+        LOG.warn("No class found to deploy service: " + service);
+      }
+    }
   }
 }
