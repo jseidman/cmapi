@@ -51,7 +51,7 @@ import java.util.Properties;
  * <li> Set the credentials for the KDC account manager.
  * <li> Execute the API call to configure the cluster for Kerberos.
  * <li> Wait for the generate credentials command to complete.
- * <li> Restart the cluster and manager services.
+ * <li> Startt the cluster and manager services.
  * <li> Deploy client configuration.
  * </ul></p>
  *
@@ -158,7 +158,8 @@ public class EnableKerberos {
     // managed, since we're just grabbing the first value returned. This would
     // need to be modified if the CM instance is managing multiple clusters:
     //  /api/v11/clusters
-    String clusterName = clustersResource.readClusters(DataView.SUMMARY).get(0).getName();
+    String clusterName =
+      clustersResource.readClusters(DataView.SUMMARY).get(0).getName();
     System.out.println("Cluster name=" + clusterName);
 
     // Stop cluster services. In a more robust implementation we'd probably
