@@ -42,6 +42,12 @@ import java.util.Properties;
  * tested with MIT Kerberos.
  * </ul><p>
  *
+ * Note that this class assumes that the Kerberos KDC config (krb5.conf) is 
+ * already deployed to all cluster hosts. Alternatively, Cloudera Manager can
+ * be used to configure and deploy the krb5.conf. See comments in the code 
+ * for updates required to do this.
+ * <p>
+ * 
  * Provided with correctly deployed Cloudera and Kerberos installations,
  * this class performs the following steps:
  * <p><ul>
@@ -57,6 +63,7 @@ import java.util.Properties;
  *
  * Note that the above mirrors the steps taken to manually enable Kerberos via
  * the Cloudera Manager UI. See: http://www.cloudera.com/documentation/enterprise/latest/topics/cm_sg_using_cm_sec_config.html.
+ * <p>
  *
  * This class expects a Java Properties file defining the following parameters:
  * <p><ul>
@@ -148,6 +155,10 @@ public class EnableKerberos {
     // This should be a space-delimited list of encryption types:
     cmConfigList.add(new ApiConfig("KRB_ENC_TYPES",
                                    (String)cmprops.get("krb_enc_types")));
+    // Use the following to have CM deploy the Kerberos config (krb5.conf) to
+    // cluster hosts. This also requires a deployClusterConfig call before
+    // starting services (see below):
+    // cmConfigList.add(new ApiConfig("KRB_MANAGE_KRB5_CONF", "true");
     // /api/v11/cm/config
     cmResource.updateConfig(cmConfigList);
 
@@ -156,7 +167,8 @@ public class EnableKerberos {
     // Use the cluster resource object to get the name of the cluster being
     // secured. Note that we're just assuming there's a single cluster being
     // managed, since we're just grabbing the first value returned. This would
-    // need to be modified if the CM instance is managing multiple clusters:
+    // need to be modified if the CM instance is managing multiple clusters.
+    // Alternatively we could pass the cluster name in as a config parameter.
     //  /api/v11/clusters
     String clusterName =
       clustersResource.readClusters(DataView.SUMMARY).get(0).getName();
@@ -225,6 +237,11 @@ public class EnableKerberos {
     System.out.println("Generate credentials command completed, status = " +
                        (status ? "successful" : "uh-oh"));
     
+    // Required if using CM to manage krb5.conf. Note that additional work 
+    // needs to be done to add the list of cluster hosts to the call.
+    // command = clustersResource.deployClusterClientConfig(clusterName,
+    //                                                      clusterHosts);
+
     // Start cluster services:
     System.out.println("Starting cluster services...");
     // /api/v11/clusters/{clusterName}/commands/start

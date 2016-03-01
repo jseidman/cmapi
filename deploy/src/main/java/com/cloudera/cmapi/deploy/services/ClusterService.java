@@ -21,6 +21,16 @@ import com.cloudera.api.v10.ServicesResourceV10;
 import org.ini4j.Wini;
 
 /**
+ * Base class for cluster services (HDFS, YARN, etc.). The general flow for
+ * deploying a service is the following:
+ * <p><ul>
+ * <li> Create and populate the service-wide configuration.
+ * <li> Create and populate role objects for each service role (e.g. for HDFS
+ * the DataNode, NameNode, etc. roles).
+ * <li> Use the above objects to create the service.
+ * <li> Then iterate through each role and update the configuration parameters
+ * associated with that role.
+ * </ul></p>
  *
  * Valid service types as of CDH5: HDFS, MAPREDUCE, HBASE, OOZIE, ZOOKEEPER,
  * HUE, YARN, IMPALA, FLUME, HIVE, SOLR, SQOOP, KS_INDEXER, SQOOP_CLIENT, 
