@@ -40,6 +40,11 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
+/**
+ *
+ * TODO: this class shares some code with ClusterService. Consider refactoring
+ * to move this code to a common Service base class.
+ */
 public class ManagementService {
 
   private enum ValidRoleTypes { HOSTMONITOR, SERVICEMONITOR, ACTIVITYMONITOR,

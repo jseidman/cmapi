@@ -38,86 +38,56 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
-public class ZooKeeperService implements ClusterService {
+public class ZooKeeperService extends ClusterService {
 
-  private static String SERVICE_TYPE = "ZOOKEEPER";
+  private static final String SERVICE_TYPE = "ZOOKEEPER";
+  private static final String ZK_ROLE_TYPE="SERVER";
   private static final Logger LOG = Logger.getLogger(ZooKeeperService.class);
-
+  
   public void deploy(Wini config, ServicesResourceV10 servicesResource) {
 
-    boolean provisionRequired = false;
+    setName(config.get(Constants.CLUSTER_CONFIG_SECTION,
+                       Constants.ZOOKEEPER_NAME_PARAMETER));
+    LOG.debug("ZooKeeper service name = " + name);
 
+    setServiceType(SERVICE_TYPE);
+
+    // Make sure service isn't already deployed:
+    boolean provisionRequired = false;
     try {
-      provisionRequired = 
-        servicesResource.readService(config.get("CLUSTER", 
-                                                Constants.ZOOKEEPER_NAME_PARAMETER)) == null;
+      provisionRequired = servicesResource.readService(name) == null;
     } catch (Exception e) {
       provisionRequired = true;
     }
 
     if (!provisionRequired) {
-      LOG.info("ZooKeeper service already deployed. Skipping...");
+      LOG.info(SERVICE_TYPE + " service already deployed. Skipping...");
     } else {
-      LOG.info("Deploying ZooKeeper service...");
-
+      LOG.info("Deploying " +  SERVICE_TYPE + " service...");
       ApiServiceList apiServices = new ApiServiceList();
       ApiService zkService = new ApiService();
       zkService.setType(SERVICE_TYPE);
-      String name = config.get("CLUSTER", 
-                               Constants.ZOOKEEPER_NAME_PARAMETER);
-      LOG.debug("Setting ZooKeeper service name to " + name);
       zkService.setName(name);
       
-      ApiServiceConfig serviceConfig = new ApiServiceConfig();
+      // Set service configuration:
       Ini.Section serviceConfigSection = 
         config.get(Constants.ZOOKEEPER_SERVICE_CONFIG_SECTION);
-      if (serviceConfigSection != null && serviceConfigSection.size() > 0) {
-        for (Map.Entry<String, String> entry : serviceConfigSection.entrySet()) {
-          LOG.debug("Adding ZooKeeper service config key/value: " +
-                    entry.getKey() + "=" + entry.getValue());
-          serviceConfig.add(new ApiConfig(entry.getKey(), entry.getValue()));
-        }
-      }
+      ApiServiceConfig serviceConfig = getServiceConfig(serviceConfigSection);
       zkService.setConfig(serviceConfig);
  
-      String[] zkHosts = 
-        config.get("CLUSTER", Constants.ZOOKEEPER_HOSTS_PARAMETER).split(",");
-      List<ApiRole> apiRoles = new ArrayList<ApiRole>();
-      for (String host : zkHosts) {
-        ApiRole apiRole = new ApiRole();
-        // Optional as of v6:
-        // apiRole.setName();
-        apiRole.setType("SERVER");
-        LOG.debug("Adding ZooKeeper host " + host);
-        apiRole.setHostRef(new ApiHostRef(host));
-        apiRoles.add(apiRole);
-      }
-      zkService.setRoles(apiRoles);
+      // Create service roles:
+      LOG.info("Adding ZooKeeper roles...");
+      List<ApiRole> zkRoles = new ArrayList<ApiRole>();
+      zkRoles.addAll(createRoles(ZK_ROLE_TYPE, null,
+                                 config.get(Constants.CLUSTER_CONFIG_SECTION,
+                                            Constants.ZOOKEEPER_HOSTS_PARAMETER).split(",")));
+      zkService.setRoles(zkRoles);
       apiServices.add(zkService);
       servicesResource.createServices(apiServices);
-      LOG.info("Added ZooKeeper service " + name);
+      LOG.info("Successfully added ZooKeeper service " + name +
+               ", now setting role configurations...");
 
-      String roleType = null;
-      for (ApiRoleConfigGroup roleConfigGroup : servicesResource.getRoleConfigGroupsResource(name).readRoleConfigGroups()) {
-        roleType = roleConfigGroup.getRoleType();
-        LOG.info("Looking for configuration params for role type=" + roleType);
-        ApiConfigList roleConfigList = new ApiConfigList();
-        Ini.Section roleConfigSection = config.get(roleType);
-        if (roleConfigSection != null && roleConfigSection.size() > 0) {
-          for (Map.Entry<String, String> entry : roleConfigSection.entrySet()) {
-            LOG.debug("Adding ZooKeeper role config key/value: " +
-                      entry.getKey() + "=" + entry.getValue());
-            roleConfigList.add(new ApiConfig(entry.getKey(), entry.getValue()));
-          }
-        }
-        ApiRoleConfigGroup apiRoleConfigGroup = new ApiRoleConfigGroup();
-        apiRoleConfigGroup.setConfig(roleConfigList);
-        servicesResource.getRoleConfigGroupsResource(name).
-          updateRoleConfigGroup(roleConfigGroup.getName(), 
-                                apiRoleConfigGroup,
-                                ("Updating ZooKeeper config for " +
-                                 roleConfigGroup.getName()));
-      }
+      updateRoleConfigurations(config, servicesResource);
     }
   }
 }

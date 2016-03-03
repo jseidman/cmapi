@@ -38,16 +38,17 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
-public class HDFSService extends ClusterService {
+public class YARNService extends ClusterService {
 
-  private static String SERVICE_TYPE="HDFS";
-  private enum RoleType { DATANODE, NAMENODE, SECONDARYNAMENODE, BALANCER, GATEWAY, HTTPFS, FAILOVERCONTROLLER, JOURNALNODE, NFSGATEWAY };
-  private static final Logger LOG = Logger.getLogger(HDFSService.class);
+  private static String SERVICE_TYPE="YARN";
+  private enum RoleType { NODEMANAGER, RESOURCEMANAGER, JOBHISTORY, GATEWAY };
+  private static final Logger LOG = Logger.getLogger(YARNService.class);
 
   public void deploy(Wini config, ServicesResourceV10 servicesResource) {
 
-    setName(config.get(Constants.HDFS_CONFIG_SECTION, 
-                       Constants.HDFS_SERVICE_NAME_PARAMETER));
+    setName(config.get(Constants.YARN_CONFIG_SECTION, 
+                       Constants.YARN_SERVICE_NAME_PARAMETER));
+
     setServiceType(SERVICE_TYPE);
 
     // Make sure service isn't already deployed:
@@ -62,49 +63,47 @@ public class HDFSService extends ClusterService {
       LOG.info(SERVICE_TYPE + " services already deployed. Skipping...");
     } else {
       LOG.info("Deploying " +  SERVICE_TYPE + " service...");
-      ApiServiceList hdfsServices = new ApiServiceList();
-      ApiService hdfsService = new ApiService();
-      hdfsService.setType(SERVICE_TYPE);
-      hdfsService.setName(name);
+      ApiServiceList yarnServices = new ApiServiceList();
+      ApiService yarnService = new ApiService();
+      yarnService.setType(SERVICE_TYPE);
+      yarnService.setName(name);
 
-      // Set service configuration:
       Ini.Section serviceConfigSection = 
-        config.get(Constants.HDFS_SERVICE_CONFIG_SECTION);
+        config.get(Constants.YARN_SERVICE_CONFIG_SECTION);
       ApiServiceConfig serviceConfig = getServiceConfig(serviceConfigSection);
-      hdfsService.setConfig(serviceConfig);
+      yarnService.setConfig(serviceConfig);
       
-      // Create service roles:
-      List<ApiRole> hdfsRoles = new ArrayList<ApiRole>();
+      List<ApiRole> yarnRoles = new ArrayList<ApiRole>();
       
-      LOG.info("Adding NameNode role...");
-      hdfsRoles.addAll(createRoles(RoleType.NAMENODE.name(), null,
-                                   config.get(Constants.HDFS_CONFIG_SECTION, 
-                                              Constants.HDFS_NAMENODE_HOST_PARAMETER).split(",")));
+      LOG.info("Adding ResourceManager role...");
+      yarnRoles.addAll(createRoles(RoleType.RESOURCEMANAGER.name(), null,
+                                   config.get(Constants.YARN_CONFIG_SECTION, 
+                                              Constants.YARN_RESOURCEMANAGER_HOST_PARAMETER).split(",")));
 
-      LOG.info("Adding Secondary NameNode role...");
-      hdfsRoles.addAll(createRoles(RoleType.SECONDARYNAMENODE.name(), null,
-                                   config.get(Constants.HDFS_CONFIG_SECTION, 
-                                              Constants.HDFS_SECONDARYNAMENODE_HOST_PARAMETER).split(",")));
+      LOG.info("Adding JobHistory Server role...");
+      yarnRoles.addAll(createRoles(RoleType.JOBHISTORY.name(), null,
+                                   config.get(Constants.YARN_CONFIG_SECTION, 
+                                              Constants.YARN_JOBHISTORY_SERVER_HOST_PARAMETER).split(",")));
 
-      LOG.info("Adding DataNode roles...");
-      hdfsRoles.addAll(createRoles(RoleType.DATANODE.name(), null,
-                                   config.get(Constants.HDFS_CONFIG_SECTION, 
-                                              Constants.HDFS_DATANODE_HOSTS_PARAMETER).split(",")));
+      LOG.info("Adding NodeManager roles...");
+      yarnRoles.addAll(createRoles(RoleType.NODEMANAGER.name(), null,
+                                   config.get(Constants.YARN_CONFIG_SECTION, 
+                                              Constants.YARN_NODEMANAGER_HOSTS_PARAMETER).split(",")));
 
       LOG.info("Adding Gateway roles...");
-      hdfsRoles.addAll(createRoles(RoleType.GATEWAY.name(), null,
-                                   config.get(Constants.HDFS_CONFIG_SECTION,
-                                              Constants.HDFS_GATEWAY_HOSTS_PARAMETER).split(",")));
+      yarnRoles.addAll(createRoles(RoleType.GATEWAY.name(), null,
+                                   config.get(Constants.YARN_CONFIG_SECTION,
+                                              Constants.YARN_GATEWAY_HOSTS_PARAMETER).split(",")));
 
-      for (ApiRole role : hdfsRoles) {
+      for (ApiRole role : yarnRoles) {
         LOG.debug("role type=" + role.getType() + ", host=" + role.getHostRef());
       }
       
-      hdfsService.setRoles(hdfsRoles);
-      hdfsServices.add(hdfsService);
-      servicesResource.createServices(hdfsServices);
+      yarnService.setRoles(yarnRoles);
+      yarnServices.add(yarnService);
+      servicesResource.createServices(yarnServices);
 
-      LOG.info("HDFS services successfully created, now setting role configurations...");
+      LOG.info("YARN services successfully created, now setting role configurations...");
   
       updateRoleConfigurations(config, servicesResource);
     }

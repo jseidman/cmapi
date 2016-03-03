@@ -25,11 +25,17 @@ public class ClusterServiceFactory {
     if (type == null) {
       return null;
     }
+
     if (services.ZOOKEEPER.name().equalsIgnoreCase(type)) {
       return new ZooKeeperService();
     }
+
     if (services.HDFS.name().equalsIgnoreCase(type)) {
       return new HDFSService();
+    }
+
+    if (services.YARN.name().equalsIgnoreCase(type)) {
+      return new YARNService();
     }
 
     return null;

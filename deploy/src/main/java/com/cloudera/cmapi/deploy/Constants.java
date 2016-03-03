@@ -33,12 +33,19 @@ public class Constants {
   public static final String ZOOKEEPER_HOSTS_PARAMETER = "zk_hosts";
   public static final String ZOOKEEPER_SERVICE_CONFIG_SECTION = "ZOOKEEPER_SERVICE_CONFIG";
   public static final String ZOOKEEPER_ROLE_CONFIG_SECTION = "ZOOKEEPER_ROLE_CONFIG";
-  public static final String HDFS_CONFIG_SECTION="HDFS";
-  public static final String HDFS_SERVICE_CONFIG_SECTION="HDFS_SERVICE_CONFIG";
-  public static final String HDFS_SERVICE_NAME_PARAMETER="hdfs_name";
-  public static final String HDFS_NAMENODE_HOST_PARAMETER="hdfs_namenode_host";
-  public static final String HDFS_SECONDARYNAMENODE_HOST_PARAMETER="hdfs_secondary_namenode_host";
-  public static final String HDFS_DATANODE_HOSTS_PARAMETER="hdfs_datanode_hosts";
-  public static final String HDFS_GATEWAY_HOSTS_PARAMETER="hdfs_gateway_hosts";
+  public static final String HDFS_CONFIG_SECTION = "HDFS";
+  public static final String HDFS_SERVICE_CONFIG_SECTION = "HDFS_SERVICE_CONFIG";
+  public static final String HDFS_SERVICE_NAME_PARAMETER = "hdfs_name";
+  public static final String HDFS_NAMENODE_HOST_PARAMETER = "hdfs_namenode_host";
+  public static final String HDFS_SECONDARYNAMENODE_HOST_PARAMETER = "hdfs_secondary_namenode_host";
+  public static final String HDFS_DATANODE_HOSTS_PARAMETER = "hdfs_datanode_hosts";
+  public static final String HDFS_GATEWAY_HOSTS_PARAMETER = "hdfs_gateway_hosts";
+  public static final String YARN_CONFIG_SECTION = "YARN";
+  public static final String YARN_SERVICE_CONFIG_SECTION = "YARN_SERVICE_CONFIG";
+  public static final String YARN_SERVICE_NAME_PARAMETER = "yarn_name";
+  public static final String YARN_RESOURCEMANAGER_HOST_PARAMETER = "yarn_resourcemanager_host";
+  public static final String YARN_JOBHISTORY_SERVER_HOST_PARAMETER = "yarn_jobhistory_server_host";
+  public static final String YARN_NODEMANAGER_HOSTS_PARAMETER = "yarn_nodemanager_hosts";
+  public static final String YARN_GATEWAY_HOSTS_PARAMETER = "yarn_gateway_hosts";
 }
 
