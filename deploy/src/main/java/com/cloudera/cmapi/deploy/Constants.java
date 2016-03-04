@@ -47,5 +47,17 @@ public class Constants {
   public static final String YARN_JOBHISTORY_SERVER_HOST_PARAMETER = "yarn_jobhistory_server_host";
   public static final String YARN_NODEMANAGER_HOSTS_PARAMETER = "yarn_nodemanager_hosts";
   public static final String YARN_GATEWAY_HOSTS_PARAMETER = "yarn_gateway_hosts";
+  public static final String HIVE_CONFIG_SECTION = "HIVE";
+  public static final String HIVE_SERVICE_CONFIG_SECTION = "HIVE_SERVICE_CONFIG";
+  public static final String HIVE_SERVICE_NAME_PARAMETER = "hive_name";
+  public static final String HIVE_METASTORE_HOST_PARAMETER="hive_metastore_host";
+  public static final String HIVE_HS2_HOSTS_PARAMETER="hive_hs2_hosts";
+  public static final String HIVE_GATEWAY_HOSTS_PARAMETER = "hive_gateway_hosts";
+  public static final String IMPALA_CONFIG_SECTION = "IMPALA";
+  public static final String IMPALA_SERVICE_CONFIG_SECTION = "IMPALA_SERVICE_CONFIG";
+  public static final String IMPALA_SERVICE_NAME_PARAMETER = "impala_name";
+  public static final String IMPALA_STATESTORE_HOST_PARAMETER="impala_statestore_host";
+  public static final String IMPALA_CATALOGSERVER_HOST_PARAMETER="impala_catalogserver_host";
+  public static final String IMPALA_IMPALAD_HOSTS_PARAMETER = "impala_impalad_hosts";
 }
 

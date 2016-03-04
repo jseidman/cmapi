@@ -18,7 +18,7 @@ package com.cloudera.cmapi.deploy.services;
 
 public class ClusterServiceFactory {
 
-  private enum services { ZOOKEEPER, HDFS, YARN, HBASE };
+  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE };
 
   public ClusterService getClusterService(String type) {
 
@@ -36,6 +36,14 @@ public class ClusterServiceFactory {
 
     if (services.YARN.name().equalsIgnoreCase(type)) {
       return new YARNService();
+    }
+
+    if (services.HIVE.name().equalsIgnoreCase(type)) {
+      return new HiveService();
+    }
+
+    if (services.IMPALA.name().equalsIgnoreCase(type)) {
+      return new ImpalaService();
     }
 
     return null;
