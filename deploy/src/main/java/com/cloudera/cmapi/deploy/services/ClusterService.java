@@ -58,6 +58,17 @@ public abstract class ClusterService {
   private static final Logger LOG = Logger.getLogger(ClusterService.class);
 
   /**
+   * Configuration object.
+   */
+  protected Wini config;
+
+  /**
+   * Cloudera Manager API object providing access to functionality for
+   * configuring, creating, etc. services on a cluster.
+   */
+  protected ServicesResourceV10 servicesResource;
+
+  /**
    * Configurable name that's assigned to a service.
    */
   protected String name;
@@ -71,11 +82,40 @@ public abstract class ClusterService {
    * Execute the workflow to deploy a service and associate roles to a 
    * cluster.
    *
+   */
+  public abstract void deploy();
+
+  /**
+   * Set required parameters.
+   *
    * @param config Configuration parameters.
    * @param servicesResource Cloudera Manager API object providing access
    * to functionality for configuring, creating, etc. services on a cluster.
    */
-  public abstract void deploy(Wini config, ServicesResourceV10 servicesResource);
+  public ClusterService(Wini config, ServicesResourceV10 servicesResource) {
+    this.config = config;
+    this.servicesResource = servicesResource;
+  }
+
+  /**
+   * Perform any required setup tasks for this service before starting.
+   *
+   * @param servicesResource Cloudera Manager API object providing access
+   * to functionality for configuring, creating, etc. services on a cluster.
+   *
+   * @return true if setup tasks complete successfully, false otherwise.
+   */
+  public abstract boolean preStartInitialization();
+
+  /**
+   * Perform any required setup tasks for this service after starting.
+   *
+   * @param servicesResource Cloudera Manager API object providing access
+   * to functionality for configuring, creating, etc. services on a cluster.
+   *
+   * @return true if setup tasks complete successfully, false otherwise.
+   */
+  public abstract boolean postStartInitialization();
 
   /**
    * Set name for this service.

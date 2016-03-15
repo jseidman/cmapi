@@ -59,5 +59,9 @@ public class Constants {
   public static final String IMPALA_STATESTORE_HOST_PARAMETER="impala_statestore_host";
   public static final String IMPALA_CATALOGSERVER_HOST_PARAMETER="impala_catalogserver_host";
   public static final String IMPALA_IMPALAD_HOSTS_PARAMETER = "impala_impalad_hosts";
+  public static final String OOZIE_CONFIG_SECTION = "OOZIE";
+  public static final String OOZIE_SERVER_HOST_PARAMETER = "oozie_server_host";
+  public static final String OOZIE_SERVICE_CONFIG_SECTION = "OOZIE_SERVICE_CONFIG";
+  public static final String OOZIE_SERVICE_NAME_PARAMETER = "oozie_name";
 }
 

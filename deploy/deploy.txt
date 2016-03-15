@@ -49,13 +49,37 @@ main():
 ** get CDH parcels; distribute parcels; activate parcels
 * deploy ZK (deploy_zookeeper)
 ** use cluster object to create ZK service (cluster.create_service())
-** 
-* create HDFS service
+** init ZK (init_zookeeper)
+* deploy HDFS service (deploy_hdfs)
 ** get role config groups for NN, SNN, and DNs
 ** create config objects
 ** update role configs with config objects
-* create YARN service
-
+* initialize HDFS (init_hdfs)
+** format HDFS (format_hdfs)
+* deploy YARN service (deploy_yarn)
+* deploy Spark (deploy_spark)
+* deploy HBase (deploy_hbase
+* deploy Hive (deploy_hive)
+* init Hive (init_hive)
+** hive_service.create_hive_metastore_database()
+** hive_service.create_hive_metastore_tables()
+** hive_service.create_hive_warehouse()
+* deploy Impala
+* stop cluster
+* start cluster
+* deploy Search
+* deploy Oozie
+* deploy Sqoop
+* deploy Hue
+* stop cluster
+* start cluster
+* post_startup
+** hdfs_service.create_hdfs_tmp()
+** hiveCreateHiveWarehouse (?!)
+** stop Ooozie
+** create Oozie DB
+** deploy client configs
+** change /user permissions to 755
 
 whirr-cm/CmServerImpl
 
@@ -65,3 +89,20 @@ whirr-cm/CmServerImpl
 735    -> provisionCluster()
 761    -> provisionParcels()
 820 -> configureServices()
+
+Initialization steps before starting:
+
+* format HDFS (apiResourceRoot.getClustersResource().getServicesResource(getName(cluster)).getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HDFS)).formatCommand())
+* format Hive (hiveCreateHiveWarehouse)
+* Oozie: 
+** installOozieShareLib
+** createOozieDb
+* ZK:
+** zooKeeperInitCommand
+* Hue:
+** syncHueDbCommand
+
+Initialization after starting:
+* HDFS
+** hdfsCreateTmpDir
+* Deploy client configs

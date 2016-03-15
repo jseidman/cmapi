@@ -18,6 +18,7 @@ package com.cloudera.cmapi.deploy;
 
 
 import com.cloudera.api.DataView;
+import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiService;
@@ -66,7 +67,7 @@ public class CMServer {
   /**
    * Top level resource object.
    */
-  private RootResourceV10 apiRoot;
+  private static RootResourceV10 apiRoot;
 
   private static final Logger LOG = Logger.getLogger(CMServer.class);
 
@@ -92,6 +93,14 @@ public class CMServer {
     mgmtService.deploy(config, cmResource);
   }
 
+  public boolean startManagementService() {
+    ApiCommand command = cmResource.getMgmtServiceResource().startCommand();
+    boolean status = waitForCommand(command).booleanValue();
+    LOG.info("Start management services command completed, status = " +
+             (status ? "successful" : "unsuccessful"));
+    return status;
+  }
+
   public void deployParcels() {
 
     LOG.info("Deploying parcels");
@@ -101,12 +110,35 @@ public class CMServer {
     }
   }
 
-  public void deployClusterServices() {
-    LOG.info("Deploying cluster services");
+  public void deployClusters() {
     for (Cluster cluster : clusters) {
       LOG.info("Deploying services for cluster " + cluster.getName());
       cluster.provisionServices();
+      LOG.info("Running pre-start init tasks for cluster" + cluster.getName());
+      cluster.preInitializeServices();
+      LOG.info("Starting cluster " + cluster.getName());
+      cluster.startCluster();
+      LOG.info("Running post-start init tasks for cluster" + cluster.getName());
+      cluster.postInitializeServices();
+      LOG.info("Deploying client configs for" + cluster.getName());
+      cluster.deployClientConfigs();
     }
   }
 
+  /**
+   * Wait for a Cloudera Manager command to complete running, and then return
+   * a flag indicating whether the command completed successfully or not.
+   */
+  public static Boolean waitForCommand(ApiCommand command) {
+    while (apiRoot.getCommandsResource().readCommand(command.getId()).isActive()) {
+      LOG.info("Waiting for " + command.getName() + " command to complete...");
+      try {
+          Thread.sleep(15000);
+        } catch (InterruptedException e) {
+      }
+    }
+    LOG.info("Command " + command.getName() + " completed. Result = " +
+             apiRoot.getCommandsResource().readCommand(command.getId()).getResultMessage());
+    return apiRoot.getCommandsResource().readCommand(command.getId()).getSuccess();
+  }
 }

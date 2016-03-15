@@ -20,13 +20,15 @@ import com.cloudera.api.DataView;
 import com.cloudera.api.model.ApiCluster;
 import com.cloudera.api.model.ApiClusterList;
 import com.cloudera.api.model.ApiClusterVersion;
+import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiHostRefList;
 import com.cloudera.api.model.ApiParcel;
-import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v10.ServicesResourceV10;
+import com.cloudera.api.v3.ParcelResource;
 
+import com.cloudera.cmapi.deploy.CMServer;
 import com.cloudera.cmapi.deploy.services.ClusterService;
 import com.cloudera.cmapi.deploy.services.ClusterServiceFactory;
 
@@ -67,11 +69,6 @@ public class Cluster {
   private String[] clusterHosts;
 
   /**
-   * Services (HDFS, YARN, etc. associated with this cluster.
-   */
-  private List<ClusterService> services;
-
-  /**
    * Config parameters.
    */
   private Wini config;
@@ -80,6 +77,16 @@ public class Cluster {
    * 
    */
   private RootResourceV10 apiRoot;
+
+  /**
+   * List of services that should be part of this cluster.
+   */
+  private String[] servicesToDeploy;
+
+  /**
+   * Valid products/Parcels.
+   */
+  public static enum PRODUCT { CDH, KAFKA };
 
   private static final Logger LOG = Logger.getLogger(Cluster.class);
 
@@ -94,6 +101,10 @@ public class Cluster {
       config.get(Constants.CLUSTER_CONFIG_SECTION,
                  Constants.CLUSTER_HOSTS_PARAMETER).split(",");
     this.apiRoot = apiRoot;
+    // Get list of services to deploy as part of this cluster:
+    servicesToDeploy =
+      config.get(Constants.CLUSTER_CONFIG_SECTION,
+                 Constants.CLUSTER_SERVICES_PARAMETER).split(",");
   }
 
   public String getName() {
@@ -150,6 +161,15 @@ public class Cluster {
   }
 
   public void provisionParcels() {
+    provisionParcels(PRODUCT.CDH);
+    for (String service : servicesToDeploy) {
+      if (service.equalsIgnoreCase(PRODUCT.KAFKA.name())) {
+        provisionParcels(PRODUCT.KAFKA);
+      }
+    }
+  }
+
+  public void provisionParcels(PRODUCT product) {
 
     // Class that encapsulates default version of an artifact:
     DefaultArtifactVersion parcelVersion = null;
@@ -161,7 +181,7 @@ public class Cluster {
       // use for deploying this cluster. An enhancement would be to allow
       // specifying the version to deploy, which will probably also require
       // configuring a specific parcel repo.
-      if (parcel.getProduct().equals("CDH")
+      if (parcel.getProduct().equals(product.name())
             && (parcelVersion == null || parcelVersion.compareTo(new DefaultArtifactVersion(parcel.getVersion())) < 0)) {
         LOG.info("Setting parcelVersion to " + parcel.getVersion());
         parcelVersion = new DefaultArtifactVersion(parcel.getVersion());
@@ -173,7 +193,7 @@ public class Cluster {
     // Get object encapsulating the CDH parcel 
     // (com.cloudera.api.v*.ParcelsResource.getParcelResource(String product, String version)):
     final ParcelResource parcelResource = apiRoot.getClustersResource()
-      .getParcelsResource(name).getParcelResource("CDH", parcelVersion.toString());
+      .getParcelsResource(name).getParcelResource(product.name(), parcelVersion.toString());
 
     // Confirm this parcel isn't already activated on the cluster, then 
     // go through the steps to download, distribute, and activate:
@@ -215,20 +235,61 @@ public class Cluster {
   public void provisionServices() {
     ServicesResourceV10 servicesResource =
       apiRoot.getClustersResource().getServicesResource(name);
-    // TODO: Replace with loop through list of services to be deployed:
-    // Get list of services to deploy as part of this cluster:
-    final String[] servicesToDeploy=
-      config.get(Constants.CLUSTER_CONFIG_SECTION,
-                 Constants.CLUSTER_SERVICES_PARAMETER).split(",");
     ClusterServiceFactory factory = new ClusterServiceFactory();
     for (String service : servicesToDeploy) {
-      ClusterService clusterService = factory.getClusterService(service);
+      ClusterService clusterService = 
+        factory.getClusterService(service, config, servicesResource);
       if (clusterService != null) {
         LOG.info("Deploying " + service + " service for cluster " + name);
-        clusterService.deploy(config, servicesResource);
+        clusterService.deploy();
       } else {
         LOG.warn("No class found to deploy service: " + service);
       }
     }
+  }
+
+  public void preInitializeServices() {
+    ServicesResourceV10 servicesResource =
+      apiRoot.getClustersResource().getServicesResource(name);
+    ClusterServiceFactory factory = new ClusterServiceFactory();
+    for (String service : servicesToDeploy) {
+      ClusterService clusterService = 
+        factory.getClusterService(service, config, servicesResource);
+      if (clusterService != null) {
+        LOG.info("Running pre-init for " + service + " service for cluster " + name);
+        clusterService.preStartInitialization();
+      }
+    }
+  }
+
+  public void postInitializeServices() {
+    ServicesResourceV10 servicesResource =
+      apiRoot.getClustersResource().getServicesResource(name);
+    ClusterServiceFactory factory = new ClusterServiceFactory();
+    for (String service : servicesToDeploy) {
+      ClusterService clusterService = 
+        factory.getClusterService(service, config, servicesResource);
+      if (clusterService != null) {
+        LOG.info("Running pre-init for " + service + " service for cluster " + name);
+        clusterService.postStartInitialization();
+      }
+    }
+  }
+
+  public boolean startCluster() {
+    ApiCommand command = apiRoot.getClustersResource().startCommand(name);
+    //ApiCommand command = apiRoot.getClustersResource().firstRun(name);
+    boolean status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Start cluster command completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
+  }
+
+  public boolean deployClientConfigs() {
+    ApiCommand command = apiRoot.getClustersResource().deployClientConfig(name);
+    boolean status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Deploy client config command completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
   }
 }

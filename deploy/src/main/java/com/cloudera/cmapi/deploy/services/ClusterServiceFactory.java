@@ -16,36 +16,45 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
+import com.cloudera.api.v10.ServicesResourceV10;
+
+import org.ini4j.Wini;
+
 public class ClusterServiceFactory {
 
-  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE };
+  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE, OOZIE };
 
-  public ClusterService getClusterService(String type) {
+  public ClusterService getClusterService(String type, 
+                                          Wini config,
+                                          ServicesResourceV10 servicesResource) {
 
     if (type == null) {
       return null;
     }
 
     if (services.ZOOKEEPER.name().equalsIgnoreCase(type)) {
-      return new ZooKeeperService();
+      return new ZooKeeperService(config, servicesResource);
     }
 
     if (services.HDFS.name().equalsIgnoreCase(type)) {
-      return new HDFSService();
+      return new HDFSService(config, servicesResource);
     }
 
     if (services.YARN.name().equalsIgnoreCase(type)) {
-      return new YARNService();
+      return new YARNService(config, servicesResource);
     }
 
     if (services.HIVE.name().equalsIgnoreCase(type)) {
-      return new HiveService();
+      return new HiveService(config, servicesResource);
     }
 
     if (services.IMPALA.name().equalsIgnoreCase(type)) {
-      return new ImpalaService();
+      return new ImpalaService(config, servicesResource);
     }
 
+    if (services.OOZIE.name().equalsIgnoreCase(type)) {
+      return new OozieService(config, servicesResource);
+    }
     return null;
   }
 }

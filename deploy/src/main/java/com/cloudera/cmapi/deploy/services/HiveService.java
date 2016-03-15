@@ -16,6 +16,7 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
+import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiConfig;
 import com.cloudera.api.model.ApiConfigList;
 import com.cloudera.api.model.ApiHostRef;
@@ -28,6 +29,7 @@ import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v10.ServicesResourceV10;
 
 import com.cloudera.cmapi.deploy.Constants;
+import com.cloudera.cmapi.deploy.CMServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +46,14 @@ public class HiveService extends ClusterService {
   private enum RoleType { HIVEMETASTORE, HIVESERVER2, GATEWAY };
   private static final Logger LOG = Logger.getLogger(HiveService.class);
 
-  public void deploy(Wini config, ServicesResourceV10 servicesResource) {
-
+  public HiveService(Wini config, ServicesResourceV10 servicesResource) {
+    super(config, servicesResource);
     setName(config.get(Constants.HIVE_CONFIG_SECTION,
                        Constants.HIVE_SERVICE_NAME_PARAMETER));
-
     setServiceType(SERVICE_TYPE);
+  }
 
+  public void deploy() {
     // Make sure service isn't already deployed:
     boolean provisionRequired = false;
     try {
@@ -102,5 +105,25 @@ public class HiveService extends ClusterService {
   
       updateRoleConfigurations(config, servicesResource);
     }
+  }
+
+  public boolean preStartInitialization() {
+    return true;
+  }
+
+ /**
+   * Perform initialization tasks for Hive service after starting. For Hive 
+   * this is running the command to create the Hive warehouse directory.
+   *
+   * TODO: consider whether this should be moved to HDFS post start method.
+   */
+  public boolean postStartInitialization() {
+    LOG.info("Creating Hive warehouse directory");
+    // /clusters/{clusterName}/services/{serviceName}/commands/hiveCreateHiveWarehouse
+    ApiCommand command = servicesResource.createHiveWarehouseCommand(name);
+    boolean status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Create Hive warehouse directory command completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
   }
 }

@@ -44,7 +44,11 @@ public class ImpalaService extends ClusterService {
   private enum RoleType { STATESTORE, CATALOGSERVER, IMPALAD };
   private static final Logger LOG = Logger.getLogger(ImpalaService.class);
 
-  public void deploy(Wini config, ServicesResourceV10 servicesResource) {
+  public ImpalaService(Wini config, ServicesResourceV10 servicesResource) {
+    super(config, servicesResource);
+  }
+
+  public void deploy() {
 
     setName(config.get(Constants.IMPALA_CONFIG_SECTION,
                        Constants.IMPALA_SERVICE_NAME_PARAMETER));
@@ -102,5 +106,13 @@ public class ImpalaService extends ClusterService {
   
       updateRoleConfigurations(config, servicesResource);
     }
+  }
+
+  public boolean preStartInitialization() {
+    return true;
+  }
+
+  public boolean postStartInitialization() {
+    return true;
   }
 }

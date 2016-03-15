@@ -8,7 +8,7 @@
   <name>cmapi-examples</name>
 
   <properties>
-    <cm.version>5.5.0</cm.version>
+    <cm.version>5.7.0</cm.version>
     <joda.version>2.1</joda.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

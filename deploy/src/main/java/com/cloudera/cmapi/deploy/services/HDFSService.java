@@ -16,20 +16,25 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
+import com.cloudera.api.model.ApiBulkCommandList;
+import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiConfig;
 import com.cloudera.api.model.ApiConfigList;
 import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
 import com.cloudera.api.model.ApiRoleConfigGroupRef;
+import com.cloudera.api.model.ApiRoleNameList;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v10.ServicesResourceV10;
 
+import com.cloudera.cmapi.deploy.CMServer;
 import com.cloudera.cmapi.deploy.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +49,14 @@ public class HDFSService extends ClusterService {
   private enum RoleType { DATANODE, NAMENODE, SECONDARYNAMENODE, BALANCER, GATEWAY, HTTPFS, FAILOVERCONTROLLER, JOURNALNODE, NFSGATEWAY };
   private static final Logger LOG = Logger.getLogger(HDFSService.class);
 
-  public void deploy(Wini config, ServicesResourceV10 servicesResource) {
-
+  public HDFSService(Wini config, ServicesResourceV10 servicesResource) {
+    super(config, servicesResource);
     setName(config.get(Constants.HDFS_CONFIG_SECTION, 
                        Constants.HDFS_SERVICE_NAME_PARAMETER));
     setServiceType(SERVICE_TYPE);
+  }
+
+  public void deploy() {
 
     // Make sure service isn't already deployed:
     boolean provisionRequired = false;
@@ -77,7 +85,8 @@ public class HDFSService extends ClusterService {
       List<ApiRole> hdfsRoles = new ArrayList<ApiRole>();
       
       LOG.info("Adding NameNode role...");
-      hdfsRoles.addAll(createRoles(RoleType.NAMENODE.name(), null,
+      hdfsRoles.addAll(createRoles(RoleType.NAMENODE.name(), //null,
+                                   RoleType.NAMENODE.name(),
                                    config.get(Constants.HDFS_CONFIG_SECTION, 
                                               Constants.HDFS_NAMENODE_HOST_PARAMETER).split(",")));
 
@@ -108,5 +117,42 @@ public class HDFSService extends ClusterService {
   
       updateRoleConfigurations(config, servicesResource);
     }
+  }
+
+  /**
+   * Perform initialization tasks before starting the HDFS service. This
+   * method will call the command to format HDFS.
+   */
+  public boolean preStartInitialization() {
+    boolean status = false;
+    LOG.info("Formatting HDFS...");
+    ApiRoleNameList roleNames = 
+      new ApiRoleNameList(new ArrayList<>(Arrays.asList(RoleType.NAMENODE.name())));
+    // /clusters/{clusterName}/services/{serviceName}/roleCommands/hdfsFormat
+    ApiBulkCommandList commands = 
+      servicesResource.getRoleCommandsResource(name).formatCommand(roleNames);
+    for (ApiCommand command : commands) {
+      status = CMServer.waitForCommand(command).booleanValue();
+      if (status == false) {
+        return status;
+      }
+    }
+    LOG.info("Format HDFS command completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
+  }
+
+  /**
+   * Perform initialization tasks after HDFS service is started. This method
+   * will create the HDFS temp directory.
+   */
+  public boolean postStartInitialization() {
+    boolean status = false;
+    LOG.info("Creating HDFS temp directory...");
+    ApiCommand command = servicesResource.hdfsCreateTmpDir(name);
+    status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Create HDFS temp directory completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
   }
 }

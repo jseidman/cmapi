@@ -16,6 +16,7 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
+import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiConfig;
 import com.cloudera.api.model.ApiConfigList;
 import com.cloudera.api.model.ApiHostRef;
@@ -27,6 +28,7 @@ import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v10.ServicesResourceV10;
 
+import com.cloudera.cmapi.deploy.CMServer;
 import com.cloudera.cmapi.deploy.Constants;
 
 import java.util.ArrayList;
@@ -44,13 +46,14 @@ public class ZooKeeperService extends ClusterService {
   private static final String ZK_ROLE_TYPE="SERVER";
   private static final Logger LOG = Logger.getLogger(ZooKeeperService.class);
   
-  public void deploy(Wini config, ServicesResourceV10 servicesResource) {
-
+  public ZooKeeperService(Wini config, ServicesResourceV10 servicesResource) {
+    super(config, servicesResource);
     setName(config.get(Constants.CLUSTER_CONFIG_SECTION,
                        Constants.ZOOKEEPER_NAME_PARAMETER));
-    LOG.debug("ZooKeeper service name = " + name);
-
     setServiceType(SERVICE_TYPE);
+  }
+
+  public void deploy() {
 
     // Make sure service isn't already deployed:
     boolean provisionRequired = false;
@@ -89,5 +92,19 @@ public class ZooKeeperService extends ClusterService {
 
       updateRoleConfigurations(config, servicesResource);
     }
+  }
+
+  public boolean preStartInitialization() {
+    boolean status = false;
+    LOG.info("Running ZooKeeper server initialization...");
+    ApiCommand command = servicesResource.zooKeeperInitCommand(name);
+    status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("ZooKeeper server initialization completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
+  }
+
+  public boolean postStartInitialization() {
+    return true;  
   }
 }

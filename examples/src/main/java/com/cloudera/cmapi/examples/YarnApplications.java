@@ -141,7 +141,7 @@ public class YarnApplications {
       System.out.println("\t progress = " + application.getProgress());
       System.out.println("\t user = " + application.getUser());
       System.out.println("\t pool = " + application.getPool());
-      //System.out.println("\t allocatedMB = " + application.getAllocatedMB());
+      System.out.println("\t allocatedMB = " + application.getAllocatedMB());
       //System.out.println("\t allocatedVCores = " + getAllocatedVCores());
       //System.out.println("\t running containers = " + getRunningContainers());
       System.out.println("\t attributes:");

@@ -16,6 +16,7 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
+import com.cloudera.api.model.ApiBulkCommandList;
 import com.cloudera.api.model.ApiCommand;
 import com.cloudera.api.model.ApiConfig;
 import com.cloudera.api.model.ApiConfigList;
@@ -23,6 +24,7 @@ import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
 import com.cloudera.api.model.ApiRoleConfigGroupRef;
+import com.cloudera.api.model.ApiRoleNameList;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
@@ -32,6 +34,7 @@ import com.cloudera.cmapi.deploy.CMServer;
 import com.cloudera.cmapi.deploy.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -40,18 +43,16 @@ import org.apache.log4j.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
-public class YARNService extends ClusterService {
+public class OozieService extends ClusterService {
 
-  private static String SERVICE_TYPE="YARN";
-  private enum RoleType { NODEMANAGER, RESOURCEMANAGER, JOBHISTORY, GATEWAY };
-  private static final Logger LOG = Logger.getLogger(YARNService.class);
+  private static String SERVICE_TYPE="OOZIE";
+  private enum RoleType { OOZIE_SERVER };
+  private static final Logger LOG = Logger.getLogger(OozieService.class);
 
-  public YARNService(Wini config, ServicesResourceV10 servicesResource) {
-
+  public OozieService(Wini config, ServicesResourceV10 servicesResource) {
     super(config, servicesResource);
-    setName(config.get(Constants.YARN_CONFIG_SECTION, 
-                       Constants.YARN_SERVICE_NAME_PARAMETER));
-
+    setName(config.get(Constants.OOZIE_CONFIG_SECTION, 
+                       Constants.OOZIE_SERVICE_NAME_PARAMETER));
     setServiceType(SERVICE_TYPE);
   }
 
@@ -69,61 +70,59 @@ public class YARNService extends ClusterService {
       LOG.info(SERVICE_TYPE + " services already deployed. Skipping...");
     } else {
       LOG.info("Deploying " +  SERVICE_TYPE + " service...");
-      ApiServiceList yarnServices = new ApiServiceList();
-      ApiService yarnService = new ApiService();
-      yarnService.setType(SERVICE_TYPE);
-      yarnService.setName(name);
+      ApiServiceList oozieServices = new ApiServiceList();
+      ApiService oozieService = new ApiService();
+      oozieService.setType(SERVICE_TYPE);
+      oozieService.setName(name);
 
+      // Set service configuration:
       Ini.Section serviceConfigSection = 
-        config.get(Constants.YARN_SERVICE_CONFIG_SECTION);
+        config.get(Constants.OOZIE_SERVICE_CONFIG_SECTION);
       ApiServiceConfig serviceConfig = getServiceConfig(serviceConfigSection);
-      yarnService.setConfig(serviceConfig);
+      oozieService.setConfig(serviceConfig);
       
-      List<ApiRole> yarnRoles = new ArrayList<ApiRole>();
+      // Create service roles:
+      List<ApiRole> oozieRoles = new ArrayList<ApiRole>();
       
-      LOG.info("Adding ResourceManager role...");
-      yarnRoles.addAll(createRoles(RoleType.RESOURCEMANAGER.name(), null,
-                                   config.get(Constants.YARN_CONFIG_SECTION, 
-                                              Constants.YARN_RESOURCEMANAGER_HOST_PARAMETER).split(",")));
+      LOG.info("Adding Oozie Server role...");
+      oozieRoles.addAll(createRoles(RoleType.OOZIE_SERVER.name(), null,
+                                   config.get(Constants.OOZIE_CONFIG_SECTION, 
+                                              Constants.OOZIE_SERVER_HOST_PARAMETER).split(",")));
 
-      LOG.info("Adding JobHistory Server role...");
-      yarnRoles.addAll(createRoles(RoleType.JOBHISTORY.name(), null,
-                                   config.get(Constants.YARN_CONFIG_SECTION, 
-                                              Constants.YARN_JOBHISTORY_SERVER_HOST_PARAMETER).split(",")));
-
-      LOG.info("Adding NodeManager roles...");
-      yarnRoles.addAll(createRoles(RoleType.NODEMANAGER.name(), null,
-                                   config.get(Constants.YARN_CONFIG_SECTION, 
-                                              Constants.YARN_NODEMANAGER_HOSTS_PARAMETER).split(",")));
-
-      LOG.info("Adding Gateway roles...");
-      yarnRoles.addAll(createRoles(RoleType.GATEWAY.name(), null,
-                                   config.get(Constants.YARN_CONFIG_SECTION,
-                                              Constants.YARN_GATEWAY_HOSTS_PARAMETER).split(",")));
-
-      for (ApiRole role : yarnRoles) {
+      for (ApiRole role : oozieRoles) {
         LOG.debug("role type=" + role.getType() + ", host=" + role.getHostRef());
       }
       
-      yarnService.setRoles(yarnRoles);
-      yarnServices.add(yarnService);
-      servicesResource.createServices(yarnServices);
+      oozieService.setRoles(oozieRoles);
+      oozieServices.add(oozieService);
+      servicesResource.createServices(oozieServices);
 
-      LOG.info("YARN services successfully created, now setting role configurations...");
+      LOG.info("Oozie services successfully created, now setting role configurations...");
   
       updateRoleConfigurations(config, servicesResource);
     }
   }
 
+  /**
+   * Perform initialization tasks before starting the Oozie service.
+   */
   public boolean preStartInitialization() {
-    LOG.info("Creating Job History directory");
-    ApiCommand command = servicesResource.createYarnJobHistoryDirCommand(name);
-    boolean status = CMServer.waitForCommand(command).booleanValue();
-    LOG.info("Create Job History directory command completed " +
+    boolean status = false;
+    LOG.info("Installing Oozie ShareLib...");
+    ApiCommand command = servicesResource.installOozieShareLib(name);
+    status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Install Oozie ShareLib completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    LOG.info("Creating Oozie DB...");
+    command = servicesResource.createOozieDb(name);
+    status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("Install Oozie DB completed " +
              (status ? "successfully" : "unsuccessfully"));
     return status;
   }
 
+  /**
+   */
   public boolean postStartInitialization() {
     return true;
   }
