@@ -63,5 +63,10 @@ public class Constants {
   public static final String OOZIE_SERVER_HOST_PARAMETER = "oozie_server_host";
   public static final String OOZIE_SERVICE_CONFIG_SECTION = "OOZIE_SERVICE_CONFIG";
   public static final String OOZIE_SERVICE_NAME_PARAMETER = "oozie_name";
+  public static final String SPARK_CONFIG_SECTION = "SPARK_ON_YARN";
+  public static final String SPARK_HISTORYSERVER_HOST_PARAMETER = "spark_yarn_historyserver_host";
+  public static final String SPARK_GATEWAY_HOSTS_PARAMETER="spark_gateway_hosts";
+  public static final String SPARK_SERVICE_CONFIG_SECTION = "SPARK_SERVICE_CONFIG";
+  public static final String SPARK_SERVICE_NAME_PARAMETER = "spark_name";
 }
 

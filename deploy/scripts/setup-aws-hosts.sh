@@ -24,7 +24,7 @@ configfile=$1
 if [ -z $configfile ]
 then
     echo "usage: $0 config-file-name"
-    echo "config-file-name should be the nane of a file containing configuration parameters for use by these scripts"
+    echo "config-file-name should be the name of a file containing configuration parameters for use by these scripts"
     exit 1
 fi
 

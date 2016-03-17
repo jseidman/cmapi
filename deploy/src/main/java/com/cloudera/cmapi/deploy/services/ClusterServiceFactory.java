@@ -22,7 +22,7 @@ import org.ini4j.Wini;
 
 public class ClusterServiceFactory {
 
-  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE, OOZIE };
+  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE, OOZIE, SPARK_ON_YARN };
 
   public ClusterService getClusterService(String type, 
                                           Wini config,
@@ -55,6 +55,11 @@ public class ClusterServiceFactory {
     if (services.OOZIE.name().equalsIgnoreCase(type)) {
       return new OozieService(config, servicesResource);
     }
+
+    if (services.SPARK_ON_YARN.name().equalsIgnoreCase(type)) {
+      return new SparkOnYarnService(config, servicesResource);
+    }
+
     return null;
   }
 }

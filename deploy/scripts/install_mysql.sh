@@ -7,14 +7,13 @@
 sudo yum -y install mysql-server
 sudo service mysqld start
 sudo /sbin/chkconfig mysqld on
-cd /opt/cloudera/parcels/CDH/lib/hive/scripts/metastore/upgrade/mysql/
 mysql -uroot --execute="CREATE DATABASE metastore; USE metastore; SOURCE ./hive-schema-1.1.0.mysql.sql;"
 mysql -uroot --execute="CREATE USER 'hiveuser'@'`hostname -f`' IDENTIFIED BY 'hivepass';"
 mysql -uroot --execute="REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'hiveuser'@'`hostname -f`';"
 mysql -uroot --execute="GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES,EXECUTE ON metastore.* TO 'hiveuser'@'`hostname -f`';"
 mysql -uroot --execute="CREATE USER 'hiveuser'@'localhost' IDENTIFIED BY 'hivepass';"
 mysql -uroot --execute="REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'hiveuser'@'localhost';"
-mysql -uroot --execute="GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES,EXECUTE ON metastore.* TO 'hive'@'localhost';"
+mysql -uroot --execute="GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES,EXECUTE ON metastore.* TO 'hiveuser'@'localhost';"
 mysql -uroot --execute="CREATE DATABASE oozie;"
 mysql -uroot --execute="CREATE USER 'oozieuser'@'`hostname -f`' IDENTIFIED BY 'ooziepass';"
 mysql -uroot --execute="CREATE USER 'oozieuser'@'%' IDENTIFIED BY 'ooziepass';"
