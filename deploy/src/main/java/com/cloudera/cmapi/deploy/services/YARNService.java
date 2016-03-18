@@ -116,15 +116,21 @@ public class YARNService extends ClusterService {
   }
 
   public boolean preStartInitialization() {
+    // LOG.info("Creating Job History directory");
+    // ApiCommand command = servicesResource.createYarnJobHistoryDirCommand(name);
+    // boolean status = CMServer.waitForCommand(command).booleanValue();
+    // LOG.info("Create Job History directory command completed " +
+    //          (status ? "successfully" : "unsuccessfully"));
+    // return status;
+    return true;
+  }
+
+  public boolean postStartInitialization() {
     LOG.info("Creating Job History directory");
     ApiCommand command = servicesResource.createYarnJobHistoryDirCommand(name);
     boolean status = CMServer.waitForCommand(command).booleanValue();
     LOG.info("Create Job History directory command completed " +
              (status ? "successfully" : "unsuccessfully"));
     return status;
-  }
-
-  public boolean postStartInitialization() {
-    return true;
   }
 }

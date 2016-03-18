@@ -202,7 +202,7 @@ public class Cluster {
     } else {
       parcelResource.startDownloadCommand();
       while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
-        LOG.debug("Waiting for CDH parcel to complete downloading");
+        LOG.info("Waiting for CDH parcel to complete downloading");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
@@ -212,7 +212,7 @@ public class Cluster {
 
       parcelResource.startDistributionCommand();
       while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
-        LOG.debug("Waiting for CDH parcel to complete distribution");
+        LOG.info("Waiting for CDH parcel to complete distribution");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
@@ -222,7 +222,7 @@ public class Cluster {
 
       parcelResource.activateCommand();
       while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
-        LOG.debug("Waiting for CDH parcel to complete activation");
+        LOG.info("Waiting for CDH parcel to complete activation");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
@@ -270,7 +270,7 @@ public class Cluster {
       ClusterService clusterService = 
         factory.getClusterService(service, config, servicesResource);
       if (clusterService != null) {
-        LOG.info("Running pre-init for " + service + " service for cluster " + name);
+        LOG.info("Running post-init for " + service + " service for cluster " + name);
         clusterService.postStartInitialization();
       }
     }
