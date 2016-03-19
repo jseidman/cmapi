@@ -106,6 +106,15 @@ public class SparkOnYarnService extends ClusterService {
   }
 
   public boolean preStartInitialization() {
+    // Note the use of the firstRun() API call here, which will execute the
+    // following commands:
+    //   CreateSparkUserDirCommand
+    //   CreateSparkHistoryDirCommand
+    //   SparkUploadJarServiceCommand
+    // Note that these commands can be run separately via the 
+    // ServicesResource.serviceCommandByName() method, but using firstRun() is
+    // a convenient shortcut. firstRun() also has the advantage of ensuring that
+    // dependent services are started before executing these commands.
     LOG.info("Executing firstRun command for Spark");
     ApiCommand command = servicesResource.firstRun(name);
     boolean status = CMServer.waitForCommand(command).booleanValue();

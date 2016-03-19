@@ -114,12 +114,12 @@ public class CMServer {
     for (Cluster cluster : clusters) {
       LOG.info("Deploying services for cluster " + cluster.getName());
       cluster.provisionServices();
-      LOG.info("Running pre-start init tasks for cluster" + cluster.getName());
-      cluster.preInitializeServices();
+      //LOG.info("Running pre-start init tasks for cluster" + cluster.getName());
+      //cluster.preInitializeServices();
       LOG.info("Starting cluster " + cluster.getName());
       cluster.startCluster();
-      LOG.info("Running post-start init tasks for cluster" + cluster.getName());
-      cluster.postInitializeServices();
+      //LOG.info("Running post-start init tasks for cluster" + cluster.getName());
+      //cluster.postInitializeServices();
       LOG.info("Deploying client configs for" + cluster.getName());
       cluster.deployClientConfigs();
     }

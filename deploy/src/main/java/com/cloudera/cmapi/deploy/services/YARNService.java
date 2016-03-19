@@ -116,21 +116,21 @@ public class YARNService extends ClusterService {
   }
 
   public boolean preStartInitialization() {
-    // LOG.info("Creating Job History directory");
-    // ApiCommand command = servicesResource.createYarnJobHistoryDirCommand(name);
-    // boolean status = CMServer.waitForCommand(command).booleanValue();
-    // LOG.info("Create Job History directory command completed " +
-    //          (status ? "successfully" : "unsuccessfully"));
-    // return status;
-    return true;
+    // YARN initialization includes creating the MR2 job history directory and
+    //  NodeManager remote application log directory. These commands can be
+    // run separately via API calls, but here we're using the firstRun method
+    // which encapsulates these commands. firstRun also facilitates these
+    // commands by ensuring that HDFS is running, which is required before
+    // creating these directories.
+    LOG.info("Running YARN firstStart command...");
+    ApiCommand command = servicesResource.firstRun(name);
+    boolean status = CMServer.waitForCommand(command).booleanValue();
+    LOG.info("firstRun command for YARN completed " +
+             (status ? "successfully" : "unsuccessfully"));
+    return status;
   }
 
   public boolean postStartInitialization() {
-    LOG.info("Creating Job History directory");
-    ApiCommand command = servicesResource.createYarnJobHistoryDirCommand(name);
-    boolean status = CMServer.waitForCommand(command).booleanValue();
-    LOG.info("Create Job History directory command completed " +
-             (status ? "successfully" : "unsuccessfully"));
-    return status;
+    return true;
   }
 }

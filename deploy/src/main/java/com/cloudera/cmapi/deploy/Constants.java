@@ -68,5 +68,14 @@ public class Constants {
   public static final String SPARK_GATEWAY_HOSTS_PARAMETER="spark_gateway_hosts";
   public static final String SPARK_SERVICE_CONFIG_SECTION = "SPARK_SERVICE_CONFIG";
   public static final String SPARK_SERVICE_NAME_PARAMETER = "spark_name";
+  public static final String KAFKA_CONFIG_SECTION = "KAFKA";
+  public static final String KAFKA_SERVICE_CONFIG_SECTION = "KAFKA_SERVICE_CONFIG";
+  public static final String KAFKA_SERVICE_NAME_PARAMETER = "kafka_name";
+  public static final String KAFKA_MIRRORMAKER_HOST_PARAMETER = "kafka_mirrormaker_host";
+  public static final String KAFKA_BROKER_HOSTS_PARAMETER = "kafka_broker_hosts";
+  public static final String HUE_CONFIG_SECTION = "HUE";
+  public static final String HUE_SERVICE_CONFIG_SECTION = "HUE_SERVICE_CONFIG";
+  public static final String HUE_SERVICE_NAME_PARAMETER = "hue_name";
+  public static final String HUE_SERVER_HOST_PARAMETER = "hue_server_host";
 }
 

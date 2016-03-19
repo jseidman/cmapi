@@ -177,7 +177,7 @@ public class Cluster {
     // Get list of available parcels (com.cloudera.api.v*.ParcelsResource.readParcels()):
     for (ApiParcel parcel : apiRoot.getClustersResource().getParcelsResource(name).readParcels(DataView.FULL).getParcels()) {
       LOG.debug("Available parcels=" + parcel.getProduct() + ", " + parcel.getVersion());
-      // Then find the greatest version of the CDH parcel, which is what we'll
+      // Then find the greatest version of the parcel, which is what we'll
       // use for deploying this cluster. An enhancement would be to allow
       // specifying the version to deploy, which will probably also require
       // configuring a specific parcel repo.
@@ -190,7 +190,7 @@ public class Cluster {
 
     LOG.info("Using parcel version " + parcelVersion.toString());
 
-    // Get object encapsulating the CDH parcel 
+    // Get object encapsulating the parcel:
     // (com.cloudera.api.v*.ParcelsResource.getParcelResource(String product, String version)):
     final ParcelResource parcelResource = apiRoot.getClustersResource()
       .getParcelsResource(name).getParcelResource(product.name(), parcelVersion.toString());
@@ -198,37 +198,37 @@ public class Cluster {
     // Confirm this parcel isn't already activated on the cluster, then 
     // go through the steps to download, distribute, and activate:
     if (parcelResource.readParcel().getStage().equals("ACTIVATED")) {
-      LOG.info("CDH parcel already activated, skipping parcel deploy steps...");
+      LOG.info(product + " parcel already activated, skipping parcel deploy steps...");
     } else {
       parcelResource.startDownloadCommand();
       while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
-        LOG.info("Waiting for CDH parcel to complete downloading");
+        LOG.info("Waiting for " + product + " parcel to complete downloading");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
         }
       }
-      LOG.info("Completed download of CDH Parcel");
+      LOG.info("Completed download of " + product + " parcel");
 
       parcelResource.startDistributionCommand();
       while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
-        LOG.info("Waiting for CDH parcel to complete distribution");
+        LOG.info("Waiting for " + product + " parcel to complete distribution");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
         }
       }
-      LOG.info("Completed distribution of CDH Parcel");
+      LOG.info("Completed distribution of " + product + " parcel");
 
       parcelResource.activateCommand();
       while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
-        LOG.info("Waiting for CDH parcel to complete activation");
+        LOG.info("Waiting for " + product + " parcel to complete activation");
         try {
           Thread.sleep(15000);
         } catch (InterruptedException e) {
         }
       }
-      LOG.info("Completed activation of CDH Parcel");
+      LOG.info("Completed activation of " + product + " parcel");
     }
   }
 
@@ -277,8 +277,8 @@ public class Cluster {
   }
 
   public boolean startCluster() {
-    ApiCommand command = apiRoot.getClustersResource().startCommand(name);
-    //ApiCommand command = apiRoot.getClustersResource().firstRun(name);
+    //ApiCommand command = apiRoot.getClustersResource().startCommand(name);
+    ApiCommand command = apiRoot.getClustersResource().firstRun(name);
     boolean status = CMServer.waitForCommand(command).booleanValue();
     LOG.info("Start cluster command completed " +
              (status ? "successfully" : "unsuccessfully"));
