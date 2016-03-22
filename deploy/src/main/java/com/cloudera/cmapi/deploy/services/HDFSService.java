@@ -46,6 +46,8 @@ import org.ini4j.Wini;
 public class HDFSService extends ClusterService {
 
   private static String SERVICE_TYPE="HDFS";
+  private String namenodeRoleName;
+
   private enum RoleType { DATANODE, NAMENODE, SECONDARYNAMENODE, BALANCER, GATEWAY, HTTPFS, FAILOVERCONTROLLER, JOURNALNODE, NFSGATEWAY };
   private static final Logger LOG = Logger.getLogger(HDFSService.class);
 
@@ -54,6 +56,8 @@ public class HDFSService extends ClusterService {
     setName(config.get(Constants.HDFS_CONFIG_SECTION, 
                        Constants.HDFS_SERVICE_NAME_PARAMETER));
     setServiceType(SERVICE_TYPE);
+    namenodeRoleName = config.get(Constants.HDFS_CONFIG_SECTION, 
+                                  Constants.HDFS_NAMENODE_NAME_PARAMETER);
   }
 
   public void deploy() {

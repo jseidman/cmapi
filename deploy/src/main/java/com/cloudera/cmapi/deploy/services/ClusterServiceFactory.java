@@ -22,7 +22,7 @@ import org.ini4j.Wini;
 
 public class ClusterServiceFactory {
 
-  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE, OOZIE, SPARK_ON_YARN, KAFKA, HUE };
+  private enum services { ZOOKEEPER, HDFS, YARN, HIVE, IMPALA, HBASE, OOZIE, SPARK_ON_YARN, KAFKA, HUE, SQOOP2, FLUME };
 
   public ClusterService getClusterService(String type, 
                                           Wini config,
@@ -66,6 +66,14 @@ public class ClusterServiceFactory {
 
     if (services.HUE.name().equalsIgnoreCase(type)) {
       return new HueService(config, servicesResource);
+    }
+
+    if (services.SQOOP2.name().equalsIgnoreCase(type)) {
+      return new Sqoop2Service(config, servicesResource);
+    }
+
+    if (services.FLUME.name().equalsIgnoreCase(type)) {
+      return new FlumeService(config, servicesResource);
     }
 
     return null;

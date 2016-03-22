@@ -36,6 +36,7 @@ public class Constants {
   public static final String HDFS_CONFIG_SECTION = "HDFS";
   public static final String HDFS_SERVICE_CONFIG_SECTION = "HDFS_SERVICE_CONFIG";
   public static final String HDFS_SERVICE_NAME_PARAMETER = "hdfs_name";
+  public static final String HDFS_NAMENODE_NAME_PARAMETER = "hdfs_namenode_name";
   public static final String HDFS_NAMENODE_HOST_PARAMETER = "hdfs_namenode_host";
   public static final String HDFS_SECONDARYNAMENODE_HOST_PARAMETER = "hdfs_secondary_namenode_host";
   public static final String HDFS_DATANODE_HOSTS_PARAMETER = "hdfs_datanode_hosts";
@@ -77,5 +78,12 @@ public class Constants {
   public static final String HUE_SERVICE_CONFIG_SECTION = "HUE_SERVICE_CONFIG";
   public static final String HUE_SERVICE_NAME_PARAMETER = "hue_name";
   public static final String HUE_SERVER_HOST_PARAMETER = "hue_server_host";
+  public static final String SQOOP2_CONFIG_SECTION = "SQOOP2";
+  public static final String SQOOP2_SERVICE_CONFIG_SECTION = "SQOOP2_SERVICE_CONFIG";
+  public static final String SQOOP2_SERVICE_NAME_PARAMETER = "sqoop2_name";
+  public static final String SQOOP2_SERVER_HOST_PARAMETER = "sqoop2_server_host";
+  public static final String FLUME_CONFIG_SECTION = "FLUME";
+  public static final String FLUME_SERVICE_CONFIG_SECTION = "FLUME_SERVICE_CONFIG";
+  public static final String FLUME_SERVICE_NAME_PARAMETER = "flume_name";
+  public static final String FLUME_AGENT_HOSTS_PARAMETER = "flume_agent_hosts";
 }
-
