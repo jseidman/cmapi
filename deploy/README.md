@@ -4,10 +4,9 @@
 ** Set cmserver to the public hostname of the instance to host the Cloudera Manager server.
 ** Set pemfile to point to a valid AWS PEM file.
 ** Set user to a valid user for the AWS instances. For RHEL/CentOS this is usually ec2-user.
-* ./setup-aws-hosts.sh
+* ./setup-aws-hosts.sh cmdeploy.cfg
 * Install MySQL instance to host the Hive metastore and Oozie DBs:
-** scp install_mysql.sh to the instance designated to host MySQL.
-** SSH to the above instance and execute the install_mysql.sh script.
+** ./run_install_mysql.sh cmdeploy.cfg
 
 * Update cmdeploy.ini
 ** Update hostname parameters for services

@@ -15,9 +15,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Prepare a cluster on EC2 for a Cloudera Manager deployment. Given a set of EC2
-# instances, execute scripts that will perform required setup (OS, etc.),
-# and then deploy and start Cloudera Manager processes.
+# Prepare a cluster on EC2 for a Cloudera deployment via Cloudera Manager. 
+# These scripts assume a RHEL/CentOS OS.
+#
+# Given a set of EC2 instances this will execute scripts to perform the 
+# following tasks:
+#   * Prepare the OS, including disabling iptables, installing and starting
+#     NTPD, and turn off SELinux.
+#   * Install the Cloudera Manager Yum repository file.
+#   * Install the Oracle JDK.
+#   * Install required CM packages, including server, agent, and CM DB packages.
+#   * Start CM server and agent processes.
+#
+# Requires a configuration file with the following properties:
+#   * cmserver - Public hostname for instance that will host CM Server.
+#   * workerhostsfile - Name of file containing public hostnames for worker
+#     nodes, one hostname per line.
+#   * pemfile - PEM file to connect to EC2 hosts.
+#   * user - Username for logging into hosts, generally ec2-user for RHEL/CentOS
+#     hosts on EC2.
 
 configfile=$1
 

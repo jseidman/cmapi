@@ -15,10 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Prepare a cluster on EC2 for a Cloudera Manager deployment. Given a set of EC2
-# instances, execute scripts that will perform required setup (OS, etc.),
-# and then deploy and start Cloudera Manager processes.
-
 configfile=$1
 
 if [ -z $configfile ]
@@ -30,9 +26,5 @@ fi
 
 source $configfile
 
-for host in `cat $workerhostsfile`
-do
-    ssh -t -i $pemfile $user@$host "sudo rm -rf /data/dfs; sudo rm -rf /data/yarn; sudo rm -rf /var/lib/zookeeper/*"
-done
-
-ssh -t -i $pemfile $user@$cmserver "sudo rm -rf /data/dfs"
+scp -i $pemfile -o StrictHostKeyChecking=no -p install_mysql.sh $user@$cmserver:~/
+ssh -t -i $pemfile $user@$cmserver "~/install_mysql.sh"

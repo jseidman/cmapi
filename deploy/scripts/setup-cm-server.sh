@@ -16,7 +16,7 @@
 # limitations under the License.
 
 # Set up the Cloudera Manager server and daemons. This should be run on the
-# host on which the CM server is to run.
+# host on which the CM server will run.
 
 configfile=$1
 
