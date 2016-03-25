@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,35 +17,40 @@
 package com.cloudera.cmapi.deploy;
 
 import com.cloudera.api.ClouderaManagerClientBuilder;
-import com.cloudera.api.DataView;
-import com.cloudera.api.model.ApiCluster;
-import com.cloudera.api.model.ApiClusterList;
-import com.cloudera.api.model.ApiClusterVersion;
-import com.cloudera.api.model.ApiRole;
-import com.cloudera.api.model.ApiService;
-import com.cloudera.api.model.ApiYarnApplication;
-import com.cloudera.api.model.ApiYarnApplicationResponse;
 import com.cloudera.api.v10.RootResourceV10;
-import com.cloudera.api.v10.ServicesResourceV10;
-import com.cloudera.api.v6.YarnApplicationsResource;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import org.ini4j.Wini;
 
+/**
+ * Main driver for application to deploy Cloudera clusters via the
+ * Cloudera Manager API. This class makes calls to the relevant objects to step
+ * through the deployment process:
+ * <p><ul>
+ * <li> Initialize clusters (set cluster name, assign hosts, etc.).
+ * <li> Deploy management services.
+ * <li> Deploy Parcels.
+ * <li> Deploy and start cluster services.
+ * </ul><p>
+ */
 public class CMApiDeploy {
 
+  /**
+   * Log4j logger.
+   */
   private static final Logger LOG = Logger.getLogger(CMApiDeploy.class);
 
-  public static void main( String[] args ) {
-    
+  /**
+   * Load configuration info from disk, get a reference to the CM API root
+   * resource object, then create management services and clusters.
+   */
+  public static void main(final String[] args) {
+
     String configFile = System.getProperty("cmapi.ini.file");
     CMApiDeploy deploy = null;
 
@@ -54,7 +59,7 @@ public class CMApiDeploy {
     try {
       deploy = new CMApiDeploy();
       config = deploy.getConfig(configFile);
-    } catch(IOException e) {
+    } catch (IOException e) {
       LOG.error("Caught exception reading configuration from " + configFile +
                 ", exception was " + e.getMessage());
       System.exit(1);
@@ -73,12 +78,20 @@ public class CMApiDeploy {
     cm.deployClusters();
   }
 
-  private RootResourceV10 getRootResource(Wini config) {
+  /**
+   * Get a reference to the object providing access to the CM API
+   * root namespace.
+   *
+   * @param config Object containing required config parameters.
+   *
+   * @return Root resource object.
+   */
+  private RootResourceV10 getRootResource(final Wini config) {
 
     RootResourceV10 apiRoot = new ClouderaManagerClientBuilder()
       .withHost(config.get("CM", Constants.CM_PUBLIC_HOSTNAME_PARAMETER))
       .withPort(7180)
-      .withUsernamePassword(config.get("CM", Constants.CM_USERNAME_PARAMETER ),
+      .withUsernamePassword(config.get("CM", Constants.CM_USERNAME_PARAMETER),
                             config.get("CM", Constants.CM_PASSWORD_PARAMETER))
       .build()
       .getRootV10();
@@ -86,7 +99,16 @@ public class CMApiDeploy {
     return apiRoot;
   }
 
-  public Wini getConfig(String inifile) 
+  /**
+   * Load config file from disk and create configuration object.
+   *
+   * @param inifile Name of file containing configuration parameters.
+   *
+   * @return Object encapsulating configuration parameters.
+   *
+   * @throws IOException if error occurs loading file.
+   */
+  public final Wini getConfig(final String inifile)
     throws IOException {
 
     InputStream in = null;
@@ -94,7 +116,6 @@ public class CMApiDeploy {
 
     try {
       in = getClass().getClassLoader().getResourceAsStream(inifile);
-      
       if (in != null) {
         ini = new Wini(in);
       } else {
@@ -103,7 +124,7 @@ public class CMApiDeploy {
     } finally {
       in.close();
     }
-       
+
     return ini;
   }
 }
