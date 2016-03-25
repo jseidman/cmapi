@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
- * You may obtain a copy of the License at
- * 
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License a
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,9 @@
  */
 package com.cloudera.cmapi.deploy;
 
+/**
+ * Configuration parameter constants for CM API deployment code.
+ */
 public class Constants {
 
   public static final String CM_PUBLIC_HOSTNAME_PARAMETER = "cm_public_hostname";
@@ -24,7 +27,7 @@ public class Constants {
   public static final String CM_PASSWORD_PARAMETER = "cm_password";
   public static final String CM_MGMT_SERVICE_NAME_PARAMETER = "mgmt_service_name";
   public static final String CM_MANAGEMENT_ROLETYPES_PARAMETER = "cm_management_roletypes";
-  public static final String CLUSTER_CONFIG_SECTION="CLUSTER";
+  public static final String CLUSTER_CONFIG_SECTION = "CLUSTER";
   public static final String CLUSTER_NAME_PARAMETER = "cluster_name";
   public static final String CLUSTER_CDH_VERSION_PARAMETER = "cluster_version";
   public static final String CLUSTER_HOSTS_PARAMETER = "cluster_hosts";
@@ -51,14 +54,14 @@ public class Constants {
   public static final String HIVE_CONFIG_SECTION = "HIVE";
   public static final String HIVE_SERVICE_CONFIG_SECTION = "HIVE_SERVICE_CONFIG";
   public static final String HIVE_SERVICE_NAME_PARAMETER = "hive_name";
-  public static final String HIVE_METASTORE_HOST_PARAMETER="hive_metastore_host";
-  public static final String HIVE_HS2_HOSTS_PARAMETER="hive_hs2_hosts";
+  public static final String HIVE_METASTORE_HOST_PARAMETER = "hive_metastore_host";
+  public static final String HIVE_HS2_HOSTS_PARAMETER = "hive_hs2_hosts";
   public static final String HIVE_GATEWAY_HOSTS_PARAMETER = "hive_gateway_hosts";
   public static final String IMPALA_CONFIG_SECTION = "IMPALA";
   public static final String IMPALA_SERVICE_CONFIG_SECTION = "IMPALA_SERVICE_CONFIG";
   public static final String IMPALA_SERVICE_NAME_PARAMETER = "impala_name";
-  public static final String IMPALA_STATESTORE_HOST_PARAMETER="impala_statestore_host";
-  public static final String IMPALA_CATALOGSERVER_HOST_PARAMETER="impala_catalogserver_host";
+  public static final String IMPALA_STATESTORE_HOST_PARAMETER = "impala_statestore_host";
+  public static final String IMPALA_CATALOGSERVER_HOST_PARAMETER = "impala_catalogserver_host";
   public static final String IMPALA_IMPALAD_HOSTS_PARAMETER = "impala_impalad_hosts";
   public static final String OOZIE_CONFIG_SECTION = "OOZIE";
   public static final String OOZIE_SERVER_HOST_PARAMETER = "oozie_server_host";
@@ -66,7 +69,7 @@ public class Constants {
   public static final String OOZIE_SERVICE_NAME_PARAMETER = "oozie_name";
   public static final String SPARK_CONFIG_SECTION = "SPARK_ON_YARN";
   public static final String SPARK_HISTORYSERVER_HOST_PARAMETER = "spark_yarn_historyserver_host";
-  public static final String SPARK_GATEWAY_HOSTS_PARAMETER="spark_gateway_hosts";
+  public static final String SPARK_GATEWAY_HOSTS_PARAMETER = "spark_gateway_hosts";
   public static final String SPARK_SERVICE_CONFIG_SECTION = "SPARK_SERVICE_CONFIG";
   public static final String SPARK_SERVICE_NAME_PARAMETER = "spark_name";
   public static final String KAFKA_CONFIG_SECTION = "KAFKA";

@@ -99,7 +99,7 @@ public class OozieService extends ClusterService {
 
       LOG.info("Oozie services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

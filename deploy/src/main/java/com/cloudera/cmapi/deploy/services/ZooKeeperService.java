@@ -90,7 +90,7 @@ public class ZooKeeperService extends ClusterService {
       LOG.info("Successfully added ZooKeeper service " + name +
                ", now setting role configurations...");
 
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

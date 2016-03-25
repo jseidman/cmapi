@@ -103,7 +103,7 @@ public class HiveService extends ClusterService {
 
       LOG.info("Hive services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

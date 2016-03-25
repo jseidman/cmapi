@@ -101,7 +101,7 @@ public class SparkOnYarnService extends ClusterService {
 
       LOG.info("Spark on YARN services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

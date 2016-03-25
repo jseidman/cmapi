@@ -92,7 +92,7 @@ public class FlumeService extends ClusterService {
 
       LOG.info("Flume service successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

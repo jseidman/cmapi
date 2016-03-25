@@ -101,7 +101,7 @@ public class KafkaService extends ClusterService {
 
       LOG.info("Kafka services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

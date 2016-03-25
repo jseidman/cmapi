@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
- * You may obtain a copy of the License at
- * 
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License a
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import com.cloudera.api.model.ApiConfigList;
 import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
-import com.cloudera.api.model.ApiRoleConfigGroupList;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.v10.ServicesResourceV10;
 
@@ -47,8 +46,8 @@ import java.util.Map;
  * </ul></p>
  *
  * Valid service types as of CDH5: HDFS, MAPREDUCE, HBASE, OOZIE, ZOOKEEPER,
- * HUE, YARN, IMPALA, FLUME, HIVE, SOLR, SQOOP, KS_INDEXER, SQOOP_CLIENT, 
- * SENTRY, ACCUMULO16, KMS, SPARK_ON_YARN 
+ * HUE, YARN, IMPALA, FLUME, HIVE, SOLR, SQOOP, KS_INDEXER, SQOOP_CLIENT,
+ * SENTRY, ACCUMULO16, KMS, SPARK_ON_YARN
  */
 public abstract class ClusterService {
 
@@ -79,7 +78,7 @@ public abstract class ClusterService {
   protected String type;
 
   /**
-   * Execute the workflow to deploy a service and associate roles to a 
+   * Execute the workflow to deploy a service and associated roles to a
    * cluster.
    *
    */
@@ -92,16 +91,14 @@ public abstract class ClusterService {
    * @param servicesResource Cloudera Manager API object providing access
    * to functionality for configuring, creating, etc. services on a cluster.
    */
-  public ClusterService(Wini config, ServicesResourceV10 servicesResource) {
+  public ClusterService(final Wini config,
+                        final ServicesResourceV10 servicesResource) {
     this.config = config;
     this.servicesResource = servicesResource;
   }
 
   /**
    * Perform any required setup tasks for this service before starting.
-   *
-   * @param servicesResource Cloudera Manager API object providing access
-   * to functionality for configuring, creating, etc. services on a cluster.
    *
    * @return true if setup tasks complete successfully, false otherwise.
    */
@@ -110,9 +107,6 @@ public abstract class ClusterService {
   /**
    * Perform any required setup tasks for this service after starting.
    *
-   * @param servicesResource Cloudera Manager API object providing access
-   * to functionality for configuring, creating, etc. services on a cluster.
-   *
    * @return true if setup tasks complete successfully, false otherwise.
    */
   public abstract boolean postStartInitialization();
@@ -120,9 +114,9 @@ public abstract class ClusterService {
   /**
    * Set name for this service.
    *
-   * @param name service name.
+   * @param name Service name.
    */
-  public void setName(String name) {
+  public final void setName(final String name) {
     this.name = name;
   }
 
@@ -131,16 +125,16 @@ public abstract class ClusterService {
    *
    * @return service name.
    */
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
   /**
    * Set service type.
    *
-   * @param service type.
+   * @param type Service type.
    */
-  public void setServiceType(String type) {
+  public final void setServiceType(final String type) {
     this.type = type;
   }
 
@@ -149,7 +143,7 @@ public abstract class ClusterService {
    *
    * @return the service type.
    */
-  public String getServiceType() {
+  public final String getServiceType() {
     return type;
   }
 
@@ -162,7 +156,7 @@ public abstract class ClusterService {
    * @return ApiServiceConfig object populated with configuration parameters
    * for a service.
    */
-  protected ApiServiceConfig getServiceConfig(Ini.Section serviceConfigSection) {
+  protected final ApiServiceConfig getServiceConfig(final Ini.Section serviceConfigSection) {
 
     ApiServiceConfig serviceConfig = new ApiServiceConfig();
     if (serviceConfigSection != null && serviceConfigSection.size() > 0) {
@@ -178,16 +172,16 @@ public abstract class ClusterService {
   /**
    * Create role (ApiRole) objects for a specific cluster role.
    *
-   * @param roleType Type for role object(s), for example NAMENODE, 
+   * @param roleType Type for role object(s), for example NAMENODE,
    * RESOURCEMANAGER, etc.
    * @param roleName Optional name for role.
    * @param hosts One or more hosts associated with the role.
    *
    * @return List of new role objects.
    */
-  protected List<ApiRole> createRoles(String roleType, 
-                                      String roleName, 
-                                      String[] hosts) {
+  protected final List<ApiRole> createRoles(final String roleType,
+                                            final String roleName,
+                                            final String[] hosts) {
 
     List<ApiRole> roles = new ArrayList();
 
@@ -205,15 +199,11 @@ public abstract class ClusterService {
     return roles;
   }
 
-  /** 
+  /**
    * Update configuration for roles associated with this service.
-   *
-   * @param config Configuration object which includes role specific
-   * configurations.
-   * @param roleConfigGroups Collection of all role config groups for service.
    */
-  protected void updateRoleConfigurations(Wini config,
-                                          ServicesResourceV10 servicesResource) {
+  protected final void updateRoleConfigurations() {
+
     String roleType = null;
     for (ApiRoleConfigGroup roleConfigGroup : servicesResource.getRoleConfigGroupsResource(name).readRoleConfigGroups()) {
       roleType = roleConfigGroup.getRoleType();
@@ -237,9 +227,9 @@ public abstract class ClusterService {
       ApiRoleConfigGroup apiRoleConfigGroup = new ApiRoleConfigGroup();
       apiRoleConfigGroup.setConfig(roleConfigList);
       servicesResource.getRoleConfigGroupsResource(name).
-        updateRoleConfigGroup(roleConfigGroup.getName(), 
+        updateRoleConfigGroup(roleConfigGroup.getName(),
                               apiRoleConfigGroup,
-                              ("Updating HDFS role config for " +
+                              ("Updating role config for " +
                                roleConfigGroup.getName()));
     }
   }

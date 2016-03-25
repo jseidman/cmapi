@@ -92,7 +92,7 @@ public class Sqoop2Service extends ClusterService {
 
       LOG.info("Sqoop 2 services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

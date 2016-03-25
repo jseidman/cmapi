@@ -119,7 +119,7 @@ public class HDFSService extends ClusterService {
 
       LOG.info("HDFS services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

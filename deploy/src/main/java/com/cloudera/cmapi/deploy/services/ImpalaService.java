@@ -104,7 +104,7 @@ public class ImpalaService extends ClusterService {
 
       LOG.info("Impala services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

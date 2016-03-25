@@ -96,7 +96,7 @@ public class HueService extends ClusterService {
 
       LOG.info("HUE services successfully created, now setting role configurations...");
   
-      updateRoleConfigurations(config, servicesResource);
+      updateRoleConfigurations();
     }
   }
 

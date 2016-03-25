@@ -68,6 +68,11 @@ public class CMServer {
   private static final Logger LOG = Logger.getLogger(CMServer.class);
 
   /**
+   * Sleep time to wait for commands to complete execution.
+   */
+  private static final long SLEEP_LENGTH = 10000;
+
+  /**
    * Constructor initializes parameters used by this class.
    *
    * @param config Object containing required config parameters.
@@ -109,6 +114,7 @@ public class CMServer {
    * @return Success or failure of starting services.
    */
   public final boolean startManagementService() {
+    // /api/v1/cm/service/commands/start
     ApiCommand command = cmResource.getMgmtServiceResource().startCommand();
     boolean status = waitForCommand(command).booleanValue();
     LOG.info("Start management services command completed, status = " +
@@ -161,12 +167,13 @@ public class CMServer {
    * @return Flag indicating success or failure of command execution.
    */
   public static Boolean waitForCommand(final ApiCommand command) {
+    // /api/v1/commands/{commandId}
     while (apiRoot.getCommandsResource().readCommand(command.getId()).isActive()) {
       LOG.info("Waiting for " + command.getName() + " command to complete...");
       try {
-          Thread.sleep(15000);
+          Thread.sleep(SLEEP_LENGTH);
         } catch (InterruptedException e) {
-        // Just ignoring...
+        LOG.warn(e.getMessage());
       }
     }
     LOG.info("Command " + command.getName() + " completed. Result = " +
