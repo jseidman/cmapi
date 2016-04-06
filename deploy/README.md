@@ -26,7 +26,7 @@ Adding a service:
 TODOS:
 ======
 
-*General:*
+_General:_
 * Add HA support, including HDFS and YARN.
 * Consider making CMServer class a singleton.
 * Add option to enable Kerberos.
@@ -38,7 +38,7 @@ TODOS:
 ** Accumulo
 ** Others?
 
-*Specific classes:"
+_Specific classes_
 * com.cloudera.cmapi.deploy.services.KafkaService:
 ** Make updates to enable deployment of MirrorMaker role. For now the relevant code is commented out.
 * com.cloudera.cmapi.deploy.services.ManagementService
