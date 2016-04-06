@@ -32,15 +32,15 @@ TODOS:
 * Add option to enable Kerberos.
 * Explore options to enable encryption.
 * Add additional services:
-** Navigator
-** Kudu
-** HBase
-** Accumulo
-** Others?
+  * Navigator
+  * Kudu
+  * HBase
+  * Accumulo
+  * Others?
 
-**Specific classes**
+**Specific classes:**
 * com.cloudera.cmapi.deploy.services.KafkaService:
-** Make updates to enable deployment of MirrorMaker role. For now the relevant code is commented out.
+  * Make updates to enable deployment of MirrorMaker role. For now the relevant code is commented out.
 * com.cloudera.cmapi.deploy.services.ManagementService
-** Class shares code with com.cloudera.cmapi.deploy.services.ClusterService. Consider refactoring, for example create a new Service base class and move the common code into that class.
-** Currently the deploy method checks for a license, but will proceed if license doesn't exist, which leads to an error. Code should be updated to add option to deploy trial license as well as possibly provide option to upload a license. In the case where no license option exists, the code should throw an exception instead of proceeding.
+  * Class shares code with com.cloudera.cmapi.deploy.services.ClusterService. Consider refactoring, for example create a new Service base class and move the common code into that class.
+  * Currently the deploy method checks for a license, but will proceed if license doesn't exist, which leads to an error. Code should be updated to add option to deploy trial license as well as possibly provide option to upload a license. In the case where no license option exists, the code should throw an exception instead of proceeding.
