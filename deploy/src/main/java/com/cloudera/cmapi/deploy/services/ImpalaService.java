@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
- * You may obtain a copy of the License at
- * 
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License a
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,12 +16,7 @@
  */
 package com.cloudera.cmapi.deploy.services;
 
-import com.cloudera.api.model.ApiConfig;
-import com.cloudera.api.model.ApiConfigList;
-import com.cloudera.api.model.ApiHostRef;
 import com.cloudera.api.model.ApiRole;
-import com.cloudera.api.model.ApiRoleConfigGroup;
-import com.cloudera.api.model.ApiRoleConfigGroupRef;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
@@ -31,29 +26,53 @@ import com.cloudera.cmapi.deploy.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
+/**
+ * Class to manage Impala service deployment.
+ */
 public class ImpalaService extends ClusterService {
 
-  private static String SERVICE_TYPE="IMPALA";
+  /**
+   * Service type. This needs to match a valid CDH service type.
+   */
+  private static final String SERVICE_TYPE = "IMPALA";
+
+  /**
+   * Role types associated with this service.
+   */
   private enum RoleType { STATESTORE, CATALOGSERVER, IMPALAD };
+
+  /**
+   * Log4j logger.
+   */
   private static final Logger LOG = Logger.getLogger(ImpalaService.class);
 
-  public ImpalaService(Wini config, ServicesResourceV10 servicesResource) {
+  /**
+   * Constructor initializes required parameters to execute deployment.
+   *
+   * @param config Configuration parameters.
+   * @param servicesResource Cloudera Manager API object providing access
+   * to functionality for configuring, creating, etc. services on a cluster.
+   */
+  public ImpalaService(final Wini config,
+                       final ServicesResourceV10 servicesResource) {
     super(config, servicesResource);
-  }
-
-  public void deploy() {
 
     setName(config.get(Constants.IMPALA_CONFIG_SECTION,
                        Constants.IMPALA_SERVICE_NAME_PARAMETER));
 
     setServiceType(SERVICE_TYPE);
+  }
+
+  /**
+   * Deploy service and associated roles.
+   */
+  public final void deploy() {
 
     // Make sure service isn't already deployed:
     boolean provisionRequired = false;
@@ -72,7 +91,7 @@ public class ImpalaService extends ClusterService {
       impalaService.setType(SERVICE_TYPE);
       impalaService.setName(name);
 
-      Ini.Section serviceConfigSection = 
+      Ini.Section serviceConfigSection =
         config.get(Constants.IMPALA_SERVICE_CONFIG_SECTION);
       ApiServiceConfig serviceConfig = getServiceConfig(serviceConfigSection);
       impalaService.setConfig(serviceConfig);
@@ -81,12 +100,12 @@ public class ImpalaService extends ClusterService {
 
       LOG.info("Adding state store role...");
       impalaRoles.addAll(createRoles(RoleType.STATESTORE.name(), null,
-                                   config.get(Constants.IMPALA_CONFIG_SECTION, 
+                                   config.get(Constants.IMPALA_CONFIG_SECTION,
                                               Constants.IMPALA_STATESTORE_HOST_PARAMETER).split(",")));
 
       LOG.info("Adding catalog server role...");
       impalaRoles.addAll(createRoles(RoleType.CATALOGSERVER.name(), null,
-                                   config.get(Constants.IMPALA_CONFIG_SECTION, 
+                                   config.get(Constants.IMPALA_CONFIG_SECTION,
                                               Constants.IMPALA_CATALOGSERVER_HOST_PARAMETER).split(",")));
 
       LOG.info("Adding impalad roles...");
@@ -95,24 +114,39 @@ public class ImpalaService extends ClusterService {
                                               Constants.IMPALA_IMPALAD_HOSTS_PARAMETER).split(",")));
 
       for (ApiRole role : impalaRoles) {
-        LOG.debug("role type=" + role.getType() + ", host=" + role.getHostRef());
+        LOG.debug("role type=" + role.getType() + ", host=" +
+                  role.getHostRef());
       }
-      
+
       impalaService.setRoles(impalaRoles);
       impalaServices.add(impalaService);
       servicesResource.createServices(impalaServices);
 
-      LOG.info("Impala services successfully created, now setting role configurations...");
-  
+      LOG.info("Impala services successfully created, now setting " +
+               "role configurations...");
+
       updateRoleConfigurations();
     }
   }
 
-  public boolean preStartInitialization() {
+  /**
+   * Perform any required setup tasks for this service before starting.
+   * For Impala no tasks are required.
+   *
+   * @return true if setup tasks complete successfully, false otherwise.
+   */
+
+  public final boolean preStartInitialization() {
     return true;
   }
 
-  public boolean postStartInitialization() {
+  /**
+   * Perform any required setup tasks for this service after starting.
+   * For Impala no tasks are required.
+   *
+   * @return true if setup tasks complete successfully, false otherwise.
+   */
+  public final boolean postStartInitialization() {
     return true;
   }
 }

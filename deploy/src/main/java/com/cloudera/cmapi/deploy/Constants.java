@@ -19,7 +19,10 @@ package com.cloudera.cmapi.deploy;
 /**
  * Configuration parameter constants for CM API deployment code.
  */
-public class Constants {
+public final class Constants {
+
+  private Constants() {
+  }
 
   public static final String CM_PUBLIC_HOSTNAME_PARAMETER = "cm_public_hostname";
   public static final String CM_PRIVATE_HOSTNAME_PARAMETER = "cm_private_hostname";

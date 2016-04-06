@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
- * You may obtain a copy of the License at
- * 
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License a
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,10 +24,7 @@ import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
-import com.cloudera.api.v10.RootResourceV10;
-import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v8.ClouderaManagerResourceV8;
-import com.cloudera.api.v8.MgmtServiceResourceV8;
 
 import com.cloudera.cmapi.deploy.Constants;
 
@@ -41,39 +38,57 @@ import org.ini4j.Ini;
 import org.ini4j.Wini;
 
 /**
- *
- * TODO: this class shares some code with ClusterService. Consider refactoring
- * to move this code to a common Service base class.
+ * Class to manage deployment of Cloudera Manager management services.
  */
 public class ManagementService {
 
+  /**
+   * Role types associated with this service.
+   */
   private enum ValidRoleTypes { HOSTMONITOR, SERVICEMONITOR, ACTIVITYMONITOR,
       REPORTSMANAGER, EVENTSERVER, ALERTPUBLISHER, NAVIGATOR };
 
-  //  private String[] deployRoleTypes;
+  /**
+   * Service type. This needs to match a valid CDH service type.
+   */
+  private static final String SERVICE_TYPE = "MGMT";
 
-  private static final Logger LOG = Logger.getLogger(ManagementService.class);
+  /**
+   * Log4j logger.
+   */
+  private static final Logger LOG =
+    Logger.getLogger(ManagementService.class);
 
-  public void deploy(Wini config, ClouderaManagerResourceV8 cmResource) {
+  /**
+   * Deploy service and associated roles.
+   *
+   * @param config Configuration parameters.
+   * @param cmResource Cloudera Manager API object providing access
+   * to functionality for configuring, creating, etc. management services.
+   */
+  public final void deploy(final Wini config,
+                           final ClouderaManagerResourceV8 cmResource) {
 
-    final String[] deployRoleTypes = config.get("MGMT_SERVICE", Constants.CM_MANAGEMENT_ROLETYPES_PARAMETER).split(",");
-    LOG.info("Validating configuration parameters for management service...");
+    final String[] deployRoleTypes =
+      config.get("MGMT_SERVICE",
+                 Constants.CM_MANAGEMENT_ROLETYPES_PARAMETER).split(",");
+    LOG.info("Validating config parameters for management service...");
     validateRoleTypes(deployRoleTypes);
-    LOG.info("Successfully validated configuration parameters for management service");
+    LOG.info("Successfully validated config parameters for management service");
 
     // Confirm that management services aren't already set up. Note that
     // setting up Cloudera Management Services requires a valid license:
     boolean cmsProvisionRequired = false;
     if (cmResource.readLicense() != null) {
       try {
-        // com.cloudera.api.v*.MgmtServiceResource.readService()
-        cmsProvisionRequired = 
+        // /api/v1/cm/service
+        cmsProvisionRequired =
           cmResource.getMgmtServiceResource().readService(DataView.SUMMARY) == null;
       } catch (Exception e) {
         cmsProvisionRequired = true;
       }
     }
-  
+
     if (!cmsProvisionRequired) {
       LOG.info("Management services already available, skipping provisioning.");
     } else {
@@ -82,10 +97,12 @@ public class ManagementService {
       final ApiHostRef cmHostRef = new ApiHostRef(cmhost);
       ApiService cmService = new ApiService();
       List<ApiRole> cmRoles = new ArrayList<ApiRole>();
-        
-      // Create the managment service and add the roles specified by the config:
-      cmService.setName(config.get("MGMT_SERVICE", Constants.CM_MGMT_SERVICE_NAME_PARAMETER));
-      cmService.setType("MGMT");
+
+      // Create the managment service and add the roles specified by the
+      // config:
+      cmService.setName(config.get("MGMT_SERVICE",
+                                   Constants.CM_MGMT_SERVICE_NAME_PARAMETER));
+      cmService.setType(SERVICE_TYPE);
       for (String type : deployRoleTypes) {
         ApiRole role = new ApiRole();
         role.setName(type + "-1");
@@ -94,13 +111,13 @@ public class ManagementService {
         cmRoles.add(role);
       }
       cmService.setRoles(cmRoles);
-      // com.cloudera.api.v*.MgmtServiceResource.setupCMS(ApiService service)
+      // /api/v1/cm/service
       cmResource.getMgmtServiceResource().setupCMS(cmService);
     }
 
     // Loop through each role config group in the Cloudera Management Services:
-    for (ApiRoleConfigGroup roleConfigGroup : 
-           // com.cloudera.api.v*.MgmtRoleConfigGroupsResource.readRoleConfigGroups()
+    for (ApiRoleConfigGroup roleConfigGroup :
+           // /api/v3/service/roleConfigGroups
            cmResource.getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
 
       // Fetch config parameters for each service, and add to role group
@@ -116,9 +133,9 @@ public class ManagementService {
         }
       }
       newRoleConfigGroup.setConfig(serviceConfig);
-      
+
       // Then update management service configs on server:
-      // (com.cloudera.api.v*.RoleConfigGroupsResource.updateRoleConfigGroup())
+      // /api/v3/service/roleConfigGroups
       cmResource.getMgmtServiceResource()
         .getRoleConfigGroupsResource()
         .updateRoleConfigGroup(roleConfigGroup.getName(), newRoleConfigGroup,
@@ -128,14 +145,14 @@ public class ManagementService {
   }
 
   /**
-   * Validate whether a list of role types to be deployed match valid role 
+   * Validate whether a list of role types to be deployed match valid role
    * types for this service.
    *
    * @param roletypes enum of role types to be deployed.
    *
    * @return true if input roles match valid roles, false otherwise.
-   */ 
-  public boolean validateRoleTypes(String[] roletypes) {
+   */
+  public final boolean validateRoleTypes(final String[] roletypes) {
 
     for (String type : roletypes) {
       if (!isValidRoleType(type)) {
@@ -153,7 +170,7 @@ public class ManagementService {
    *
    * @return true if input role matches a valid role, false otherwise.
    */
-  public boolean isValidRoleType(String type) {
+  public final boolean isValidRoleType(final String type) {
     for (ValidRoleTypes rt : ValidRoleTypes.values()) {
       if (rt.name().equals(type)) {
         return true;

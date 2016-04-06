@@ -48,6 +48,8 @@ public class CMApiDeploy {
   /**
    * Load configuration info from disk, get a reference to the CM API root
    * resource object, then create management services and clusters.
+   *
+   * @param args Command line arguments.
    */
   public static void main(final String[] args) {
 
@@ -122,7 +124,9 @@ public class CMApiDeploy {
         throw new FileNotFoundException(inifile + " not found");
       }
     } finally {
-      in.close();
+      if (in != null) {
+        in.close();
+      }
     }
 
     return ini;
