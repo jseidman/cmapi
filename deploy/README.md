@@ -1,3 +1,35 @@
+CDH Deployment via the Cloudera Manager API Java Client
+=======================================================
+
+Java application to deploy a Cloudera cluster using the Java client to the Cloudera Manager API. Given provisioned instances, this application will execute all steps to deploy and start a working cluster. These steps include:
+
+* Deploying the Cloudera management services.
+* Initializing the cluster.
+* Deploying a configured set of services to the cluster.
+* Perform required initialization steps and start the cluster.
+
+As noted above, this application requires provisioned instances for deployment. This includes a supported OS with required changes (e.g. disabled SELinux, ntpd running, etc.), as well as the Cloudera Manager Server and Agents installed. A set of scripts to perform these tasks on EC2 are provided. Instructions on using these scripts are below.
+
+This is intended as an example of using the Java API client to perform Cloudera cluster installations, and has only been tested to deploy test clusters. However, deploying production clusters should mainly require providing more extensive parameters in the configuration file. Details on updating the configuration file are in the instructions below.
+
+A set of TODOs is below, but some limitations include:
+
+* Not all available services are implemented. See the TODOs for a list of missing services.
+* Enabling HA is not yet implemented.
+* This currently will install the latest CDH5 version. An option to specify the version is not yet implemented.
+
+This application and associated scripts have been tested on EC2, but should not be hard to adapt to work on other environments.
+
+Files
+=====
+
+The following describes the artifacts in this repository:
+
+* scripts/: A set of scripts and configuration files to prepare a set of instances for the Cloudera deployment. This also includes scripts for deploying a test MySQL instance for use as the Hive metastore/Oozie DB, as well as a script to completely uninstall the Cloudera components just in case things go horribly wrong and you want to start over with clean instances. Instructions on using these scripts are below.
+* src/main/java: Java classes implementing the deployment application. More details below.
+* src/main/resources/cmdeploy.ini: Configuration parameters for the Cloudera deployment. Also detailed in the instructions below.
+
+
 * Deploy instances on Amazon EC2 using a supported OS.
 * Update hosts.txt with worker node hostnames. These should be the public hostnames.
 * Update cmdeploy.cfg:
@@ -28,6 +60,7 @@ TODOS:
 
 **General:**
 * Add HA support, including HDFS and YARN.
+* Add ability to specify the CDH version to deploy.
 * Consider making CMServer class a singleton.
 * Add option to enable Kerberos.
 * Explore options to enable encryption.
@@ -36,6 +69,7 @@ TODOS:
   * Kudu
   * HBase
   * Accumulo
+  * Search
   * Others?
 
 **Specific classes:**
