@@ -29,9 +29,15 @@ The following describes the artifacts in this repository:
 * src/main/java: Java classes implementing the deployment application. More details below.
 * src/main/resources/cmdeploy.ini: Configuration parameters for the Cloudera deployment. Also detailed in the instructions below.
 
+Usage Instructions
+==================
 
-* Deploy instances on Amazon EC2 using a supported OS.
-* Update hosts.txt with worker node hostnames. These should be the public hostnames.
+More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2:
+
+* Deploy instances on Amazon EC2 using a supported OS. Testing was done with the following:
+    * RHEL 6.5, ami-7df0bd4d (us-west-2c).
+    * Instance type: m3.2xlarge
+* Update scripts/hosts.txt with cluster node hostnames, excluding the instance that will host the Cloudera Manager server -- this hostname will be updated in cmdeploy.cfg. Hostnames entered in this file should be the public hostnames.
 * Update cmdeploy.cfg:
 ** Set cmserver to the public hostname of the instance to host the Cloudera Manager server.
 ** Set pemfile to point to a valid AWS PEM file.
