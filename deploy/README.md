@@ -25,9 +25,9 @@ Files
 
 The following describes the artifacts in this repository:
 
-* scripts/: A set of scripts and configuration files to prepare a set of instances for the Cloudera deployment. This also includes scripts for deploying a test MySQL instance for use as the Hive metastore/Oozie DB, as well as a script to completely uninstall the Cloudera components just in case things go horribly wrong and you want to start over with clean instances. Instructions on using these scripts are below.
-* src/main/java: Java classes implementing the deployment application. More details below.
-* src/main/resources/cmdeploy.ini: Configuration parameters for the Cloudera deployment. Also detailed in the instructions below.
+* **scripts/:** A set of scripts and configuration files to prepare a set of instances for the Cloudera deployment. This also includes scripts for deploying a test MySQL instance for use as the Hive metastore/Oozie DB, as well as a script to completely uninstall the Cloudera components just in case things go horribly wrong and you want to start over with clean instances. Instructions on using these scripts are below.
+* **src/main/java:** Java classes implementing the deployment application. More details below.
+* **src/main/resources/cmdeploy.ini**: Configuration parameters for the Cloudera deployment. Also detailed in the instructions below.
 
 Usage Instructions
 ==================
@@ -35,13 +35,13 @@ Usage Instructions
 More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2:
 
 * Deploy instances on Amazon EC2 using a supported OS. Testing was done with the following:
-    * RHEL 6.5, ami-7df0bd4d (us-west-2c).
-    * Instance type: m3.2xlarge
-* Update scripts/hosts.txt with cluster node hostnames, excluding the instance that will host the Cloudera Manager server -- this hostname will be updated in cmdeploy.cfg. Hostnames entered in this file should be the public hostnames.
-* Update cmdeploy.cfg:
-** Set cmserver to the public hostname of the instance to host the Cloudera Manager server.
-** Set pemfile to point to a valid AWS PEM file.
-** Set user to a valid user for the AWS instances. For RHEL/CentOS this is usually ec2-user.
+  * RHEL 6.5, ami-7df0bd4d (us-west-2c).
+  * Instance type: m3.2xlarge
+* Update **scripts/hosts.txt** with cluster node hostnames, excluding the instance that will host the Cloudera Manager server -- this hostname will be updated in cmdeploy.cfg. Hostnames entered in this file should be the public hostnames.
+* Update **cmdeploy.cfg:**
+  * Set **cmserver** to the public hostname of the instance to host the Cloudera Manager server. Note that this host can also be used for master services such as the NameNode and Resource Manager.
+  * Set **pemfile** to point to a valid AWS PEM file.
+  * Set **user** to a valid user for the AWS instances. For RHEL/CentOS this is usually ec2-user.
 * ./setup-aws-hosts.sh cmdeploy.cfg
 * Install MySQL instance to host the Hive metastore and Oozie DBs:
 ** ./run_install_mysql.sh cmdeploy.cfg
