@@ -32,7 +32,7 @@ The following describes the artifacts in this repository:
 Usage Instructions
 ==================
 
-More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2:
+More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2. Note that the scripts provided are adapted from the scripts provided as part of the [Python API example](https://github.com/cloudera/cm_api/tree/master/python/examples/auto-deploy).
 
 * Deploy instances on Amazon EC2 using a supported OS. Testing was done with the following:
   * RHEL 6.5, ami-7df0bd4d (us-west-2c).
@@ -42,6 +42,12 @@ More details are provided below for the process required to deploy a cluster via
   * Set **cmserver** to the public hostname of the instance to host the Cloudera Manager server. Note that this host can also be used for master services such as the NameNode and Resource Manager.
   * Set **pemfile** to point to a valid AWS PEM file.
   * Set **user** to a valid user for the AWS instances. For RHEL/CentOS this is usually ec2-user.
+* Then execute script to set up instances. This will perform the following steps on the EC2 instances:
+  * Install the Cloudera repo files on the hosts.
+  * Disable iptables.
+  * Disable SELinux
+  * Enable ntpd.
+  * Install the Oracle JDK, Cloudera Manager server and agents, and the Cloudera Manager database instance.
 * ./setup-aws-hosts.sh cmdeploy.cfg
 * Install MySQL instance to host the Hive metastore and Oozie DBs:
 ** ./run_install_mysql.sh cmdeploy.cfg
