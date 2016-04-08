@@ -62,7 +62,7 @@ After the above completes, update the cluster configuration and then execute the
 
 Before executing the deployment application, a couple of things to note:
 
-* The code currently doesn't enable a CM license, so before executing log into the CM UI and execute the trial license.
+* The code currently doesn't enable a CM license, so before executing log into the CM UI and execute the trial license (or upload a valid license).
 * To help troubleshoot, set the "Enable Debugging of API" parameter in the Administration settings in the CM UI. See [Debugging Tips](http://cloudera.github.io/cm_api/docs/debugging-tips/).
 
 Finally, build and execute the deployment application:
@@ -71,21 +71,49 @@ Finally, build and execute the deployment application:
 * **mvn clean package**
 * **mvn exec:java -Dcmapi.ini.file=cmdeploy.ini -Dexec.mainClass="com.cloudera.cmapi.deploy.CMApiDeploy"**
 
-If for some reason you want to start over with clean instances, use the **uninstall.sh** scripts in the scripts directory.
+If for some reason you want to start over with clean instances, use the **uninstall.sh** script in the scripts directory.
 
+Details on Deploying Cloudera with The Cloudera Manager API
+===========================================================
 
-Adding a service:
+The following provides a more detailed overview of the process flow to deploy Cloudera with the CM API. There are basically two high-level activities involved in the deployment:
 
-* Add configuration parameters to resources/cmdeploy.ini. See that file for
- details.
-** Add service to services parameter in [CLUSTER] section
-** Add configuration sections for service
-* Add corresponding variables to com.cloudera.cmapi.deploy.Constants.
-* Add a new class in com.cloudera.cmapi.deploy.services implementing ClusterService.
-* Update com.cloudera.cmapi.deploy.services.ClusterServiceFactory
-* Update cmdeploy.ini by adding new service to "services" parameter in the "[CLUSTER]" section. 
+Deploying and preparing instances for the Cloudera deployment. This involves tasks like:
+* Provisioning hardware (or VMs) to support the deployment, including the OS, etc.
+* Creating required and recommended OS, etc. changes on the hosts, such as disabling SELinux and firewalls, enabling NTPD, making recommended file system changes, etc.
+* Installing required Cloudera repositories.
+* Installing required software such as a JDK, Cloudera Manager server and agents, etc.
+* Starting required services including the Cloudera Manager server and agents.
 
+This stage can be implemented different ways, for example:
+* Distribution specific tools like Redhat Kickstart.
+* Configuration management tools like Puppet, Chef, or Ansible.
+* Shell scripts, as in the example here.
 
+Once cluster hosts are provisioned, the next step is to deploy Cloudera management services and clusters. These are the tasks performed by the automated deployment application. Although there are some requirements in the order of these tasks -- for example the CDH Parcel needs to be available before deploying CDH services -- there's some flexibility in the exact steps involved and order of steps. In general though existing examples will follow this flow fairly closely:
+* Initialize cluster(s). This includes setting the cluster name(s) and adding hosts that are part of the cluster(s).
+* Deploy and start the CM management services.
+* Download, distribute, and activate required Parcels.
+* Deploy the cluster(s). This includes deploying services (HDFS, YARN, etc.), perfoming required initialization of the services, and then starting the services.
+
+Comments in the code provide more detailed documentation on the steps involved in each of these tasks.
+
+Implementing a New Service
+==========================
+
+The following are the steps to add code for deploying a new service:
+
+* Update src/main/resources/cmdeploy.ini with parameters for the new service. This includes adding/updating the following, but see the file for detailed comments on the parameters.
+  * Add the service to the list of services to be deployed. This is the **services** parameter in the **[CLUSTER]** section.
+  * Add a configuration section for the service. This will generally include a section with general configuration parameters such as service name and service hosts, a service configuration section, and then sections for each role configuration. Again see the file for detailed comments.
+* Add corresponding variables to com.cloudera.cmapi.deploy.Constants class.
+* Add a new class in com.cloudera.cmapi.deploy.services implementing ClusterService. In most cases this should only require copying one of the existing classes and making minimal changes for the new service.
+* Update com.cloudera.cmapi.deploy.services.ClusterServiceFactory for the new service class.
+
+Details on the Example Implementation
+=====================================
+
+This section provides some details on the example deployment code. Before discussing the code though, it's useful to provide a review of some Cloudera Manager concepts and architecture. The following isn't intended to be comprehensive, but is useful in understanding the structure of the example code. More details on CM are available [here](http://www.cloudera.com/documentation/enterprise/latest/topics/cm_intro_primer.html).
 TODOS:
 ======
 
