@@ -32,28 +32,47 @@ The following describes the artifacts in this repository:
 Usage Instructions
 ==================
 
-More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2. Note that the scripts provided are adapted from the scripts provided as part of the [Python API example](https://github.com/cloudera/cm_api/tree/master/python/examples/auto-deploy).
+More details are provided below for the process required to deploy a cluster via the CM API, but the following are the steps to test this application using EC2. Note that the scripts in this repo are adapted from the scripts provided as part of the [Python API example](https://github.com/cloudera/cm_api/tree/master/python/examples/auto-deploy).
 
 * Deploy instances on Amazon EC2 using a supported OS. Testing was done with the following:
   * RHEL 6.5, ami-7df0bd4d (us-west-2c).
   * Instance type: m3.2xlarge
 * Update **scripts/hosts.txt** with cluster node hostnames, excluding the instance that will host the Cloudera Manager server -- this hostname will be updated in cmdeploy.cfg. Hostnames entered in this file should be the public hostnames.
-* Update **cmdeploy.cfg:**
+* Update **scripts/cmdeploy.cfg:**
   * Set **cmserver** to the public hostname of the instance to host the Cloudera Manager server. Note that this host can also be used for master services such as the NameNode and Resource Manager.
   * Set **pemfile** to point to a valid AWS PEM file.
   * Set **user** to a valid user for the AWS instances. For RHEL/CentOS this is usually ec2-user.
-* Then execute script to set up instances. This will perform the following steps on the EC2 instances:
+* Execute script to set up instances: **cd scripts; ./setup-aws-hosts.sh cmdeploy.cfg**. This will perform the following steps on the EC2 instances:
   * Install the Cloudera repo files on the hosts.
   * Disable iptables.
   * Disable SELinux
   * Enable ntpd.
   * Install the Oracle JDK, Cloudera Manager server and agents, and the Cloudera Manager database instance.
-* ./setup-aws-hosts.sh cmdeploy.cfg
-* Install MySQL instance to host the Hive metastore and Oozie DBs:
-** ./run_install_mysql.sh cmdeploy.cfg
+  * Start the CM server and agent processes.
+* If necessary, update the **cdh_archive_url, hive_version, and schema_file** parameters in the **install_mysql.sh** script.
+* Then execute script to set up a MySQL instance to host the Hive metastore and Oozie DBs: **./run_install_mysql.sh cmdeploy.cfg**.
 
-* Update cmdeploy.ini
-** Update hostname parameters for services
+After the above completes, update the cluster configuration and then execute the deployment application:
+
+* Update **src/main/resources/cmdeploy.ini**. Comments are provided for the values in this file, but some key parameters to note for updating:
+  * Make sure hostname parameters are updated, such as the Cloudera Manager host, service hosts, etc.
+  * Update the **services** parameter in the **[CLUSTER]** section based on the services that should be deployed.
+  * Update the database parameters for the management services, including the host, and username/password.
+  * Update service and role configurations as necessary.
+
+Before executing the deployment application, a couple of things to note:
+
+* The code currently doesn't enable a CM license, so before executing log into the CM UI and execute the trial license.
+* To help troubleshoot, set the "Enable Debugging of API" parameter in the Administration settings in the CM UI. See [Debugging Tips](http://cloudera.github.io/cm_api/docs/debugging-tips/).
+
+Finally, build and execute the deployment application:
+
+* **cd deploy**
+* **mvn clean package**
+* **mvn exec:java -Dcmapi.ini.file=cmdeploy.ini -Dexec.mainClass="com.cloudera.cmapi.deploy.CMApiDeploy"**
+
+If for some reason you want to start over with clean instances, use the **uninstall.sh** scripts in the scripts directory.
+
 
 Adding a service:
 
@@ -73,6 +92,7 @@ TODOS:
 **General:**
 * Add HA support, including HDFS and YARN.
 * Add ability to specify the CDH version to deploy.
+* Add additional error checking and validation to code.
 * Consider making CMServer class a singleton.
 * Add option to enable Kerberos.
 * Explore options to enable encryption.
