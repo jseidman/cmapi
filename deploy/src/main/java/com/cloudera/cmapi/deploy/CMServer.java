@@ -31,9 +31,9 @@ import org.apache.log4j.Logger;
 import org.ini4j.Wini;
 
 /**
- * Class representing Cloudera Manager instance. Similar to the Cloudera Manager
- * Server, this class encapsulates and has responsibility for deploying
- * management services and clusters.
+ * Class representing Cloudera Manager instance. Similar to the Cloudera
+ * Manager Server, this class encapsulates and has responsibility for
+ * deploying management services and clusters.
  */
 public class CMServer {
 

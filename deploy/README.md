@@ -1,7 +1,7 @@
 CDH Deployment via the Cloudera Manager API Java Client
 =======================================================
 
-Java application to deploy a Cloudera cluster using the Java client to the Cloudera Manager API. Given provisioned instances, this application will execute all steps to deploy and start a working cluster. These steps include:
+Example Java application to deploy a Cloudera cluster using the Java client to the Cloudera Manager API. Given provisioned instances, this application will execute all steps to deploy and start a working cluster. These steps include:
 
 * Deploying the Cloudera management services.
 * Initializing the cluster.
@@ -98,6 +98,38 @@ Once cluster hosts are provisioned, the next step is to deploy Cloudera manageme
 
 Comments in the code provide more detailed documentation on the steps involved in each of these tasks.
 
+Details on the Example Implementation
+=====================================
+
+This section provides some details on the example deployment code. Before discussing the code though, it's useful to provide a review of some Cloudera Manager concepts and architecture. The following isn't intended to be comprehensive, but is useful in understanding the structure of the example code. More details on CM are available [here](http://www.cloudera.com/documentation/enterprise/latest/topics/cm_intro_primer.html).
+
+The following is a subset of the concepts covered in the above doc that are relevant to this application:
+
+* Cloudera Manager Server: The CM server is the component that manages deployment, management and monitoring of Cloudera clusters. An important thing to note is that a deployment will contain a single CM server.
+* Cloudera Manager Agents: Agents run on every node, and are responsible for services such as managing processes, monitoring the host, etc. Each agent communicates with the CM server to update status, receive instructions, etc.
+* Management Service: A set of services providing monitoring, reporting, etc. functions. In contrast to the cluster services discussed below, this is a set of services associated with the CM instance.
+* Clusters: The set of nodes hosting the Cloudera Hadoop distribution, including all services such as HDSF, Spark, YARN, etc. From the CM standpoint, a cluster is a set of hosts with a specific version of CDH installed, running the Hadoop services ands associated roles. A single CM server can manage multiple clusters, although each cluster can only be associated with a specific CM server.
+* Service (or Service Type): A specific piece of functionality managed by CM, generally a standard Hadoop service such as HDFS, YARN, etc.
+* Service Instance: This is a specific instance of a service running on a cluster. For example, the label "HDFS-1" may refer to an instance of the HDFS service running on a cluster.
+* Role (or Role Type): This is the implementation of specific functionality within a service. For example HDFS has the NameNode, DataNode, etc. roles.
+* Role Instance: Similar to service instances, this is a specific instance of a role running on a cluster.
+* Role Group: A set of configuration properties applied to a set of role instances.
+* Gateway: Sometimes referred to as edge nodes or client nodes, these are nodes that can act as clients to a cluster, but don't run any cluster services.
+* Parcel: A binary distribution format for Cloudera deployments, which replace standard packages (e.g. RPMs) for deploying Cloudera.
+
+Another thing to note is how CM defines configurations. A couple of configuration types which are relevant to the code that deploys services are:
+
+* Service Level: Configuration parameters that apply to the entire service. A good example of this is HDFS replication.
+* Role Groups: Configurations that apply to roles, such as memory configurations for roles, directory locations, etc.
+
+With the above as background, the following is an overview of the classes in the example application:
+
+* CMApiDeploy: This is a simple driver class. This class loads the configuration, obtains a reference to the CM API root object, and calls methods on the CM Server object (below) to execute deployment.
+* CMServer: This class encapsulates the Cloudera Manager Server functionality. Like the CM Server, this class has responsibility for deploying management services and clusters.
+* Cluster: Class encapsulating a cluster managed by a CM server. This class is responsible for initializing a cluster, deploying Parcels for the cluster, deploying cluster services, and initializing and starting services.
+* ClusterService: Base class for classes encapsulating specific cluster services. This class defines the methods that service classes should implement, and provides default implementations for common methods.
+* Service classes: Classes implementing functionality to deploy specific services, including associated roles. These classes, with the exception of ManagementService, extend ClusterService. See below for notes on adding a new service.
+
 Implementing a New Service
 ==========================
 
@@ -110,10 +142,11 @@ The following are the steps to add code for deploying a new service:
 * Add a new class in com.cloudera.cmapi.deploy.services implementing ClusterService. In most cases this should only require copying one of the existing classes and making minimal changes for the new service.
 * Update com.cloudera.cmapi.deploy.services.ClusterServiceFactory for the new service class.
 
-Details on the Example Implementation
-=====================================
+Other Notes
+===========
 
-This section provides some details on the example deployment code. Before discussing the code though, it's useful to provide a review of some Cloudera Manager concepts and architecture. The following isn't intended to be comprehensive, but is useful in understanding the structure of the example code. More details on CM are available [here](http://www.cloudera.com/documentation/enterprise/latest/topics/cm_intro_primer.html).
+The application uses the [ini4j](http://ini4j.sourceforge.net/index.html) library to manage configuration. This isn't necessarily the optimal solution, but it's easy and convenient to use.
+
 TODOS:
 ======
 
@@ -121,6 +154,7 @@ TODOS:
 * Add HA support, including HDFS and YARN.
 * Add ability to specify the CDH version to deploy.
 * Add additional error checking and validation to code.
+* Add ability to deploy multiple clusters.
 * Consider making CMServer class a singleton.
 * Add option to enable Kerberos.
 * Explore options to enable encryption.
