@@ -147,6 +147,14 @@ Other Notes
 
 The application uses the [ini4j](http://ini4j.sourceforge.net/index.html) library to manage configuration. This isn't necessarily the optimal solution, but it's easy and convenient to use.
 
+References
+==========
+
+The following examples provided references for this implementation:
+
+* [whirr-cm](https://github.com/cloudera/whirr-cm): Although somewhat out-of-date, this provides a comprehensive example of performing a Cloudera deployment with the Java client, and much of the code here is adapted from that example.
+* [Python auto-deploy example](https://github.com/cloudera/cm_api/tree/master/python/examples/auto-deploy): This is a fairly comprehensive example of Cloudera deployment via the Python client. While the Python code is of course different, this provides a good template for the tasks required for the deployment process.
+* 
 TODOS:
 ======
 
