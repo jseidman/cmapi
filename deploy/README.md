@@ -154,7 +154,8 @@ The following examples provided references for this implementation:
 
 * [whirr-cm](https://github.com/cloudera/whirr-cm): Although somewhat out-of-date, this provides a comprehensive example of performing a Cloudera deployment with the Java client, and much of the code here is adapted from that example.
 * [Python auto-deploy example](https://github.com/cloudera/cm_api/tree/master/python/examples/auto-deploy): This is a fairly comprehensive example of Cloudera deployment via the Python client. While the Python code is of course different, this provides a good template for the tasks required for the deployment process.
-* 
+* [Another Python example](https://github.com/gdgt/cmapi): This provides another example of using the Python client, with some additional functionality such as enabling HA.
+
 TODOS:
 ======
 
