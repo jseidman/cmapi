@@ -2,12 +2,12 @@
  * Licensed to Cloudera, Inc. under one or more contributor license agreements.
  * See the NOTICE file distributed with this work for additional information
  * regarding copyright ownership.  Cloudera, Inc. licenses this file
- * to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance  with the License.  
- * You may obtain a copy of the License at
- * 
+ * to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License a
+ *
  *    http:www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import com.cloudera.api.ClouderaManagerClientBuilder;
 import com.cloudera.api.DataView;
 import com.cloudera.api.model.ApiCluster;
 import com.cloudera.api.model.ApiClusterList;
-import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiYarnApplication;
 import com.cloudera.api.model.ApiYarnApplicationResponse;
@@ -28,7 +27,6 @@ import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v10.ServicesResourceV10;
 import com.cloudera.api.v6.YarnApplicationsResource;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
@@ -39,16 +37,25 @@ import java.util.Properties;
 import org.joda.time.DateTime;
 
 /**
- * mvn package
- *  mvn exec:java -Dcmapi.properties.file=cmexamples.properties \
- *  -Dexec.mainClass="com.cloudera.cmapi.examples.YarnApplications"
- * or
- * java -cp target/examples-1.0-SNAPSHOT-executable.jar \
- * -Dcmapi.properties.file=cmexamples.properties \
- * com.cloudera.cmapi.examples.YarnApplications
+ * Example of using the Cloudera Manager API to show information on YARN
+ * jobs.
+ *
+ * To use:
+ * <p><ul>
+ * <li> Update cmhost, cmuser, and cmpass properties in
+ * src/main/resources/cmexamples.properties.
+ * <li> Build: mvn package
+ * <li> Execute: mvn exec:java -Dcmapi.properties.file=cmexamples.properties  -Dexec.mainClass="com.cloudera.cmapi.examples.YarnApplications"
+ * <li> or java -cp target/examples-1.0-SNAPSHOT-executable.jar -Dcmapi.properties.file=cmexamples.properties com.cloudera.cmapi.examples.YarnApplications
+ * </ul><p>
  */
 public class YarnApplications {
 
+  /**
+   * Execute the steps to call the API to get info on YARN jobs.
+   *
+   * @param args Command line arguments.
+   */
   public static void main(String[] args) {
 
     String propfile = System.getProperty("cmapi.properties.file");
@@ -62,10 +69,10 @@ public class YarnApplications {
 
     // Get API root:
     RootResourceV10 apiRoot = new ClouderaManagerClientBuilder()
-      .withHost((String)cmprops.get("cmhost"))
+      .withHost((String) cmprops.get("cmhost"))
       .withPort(7180)
-      .withUsernamePassword((String)cmprops.get("cmuser"), (String)
-                            cmprops.get("cmpass"))
+      .withUsernamePassword((String) cmprops.get("cmuser"), 
+                            (String) cmprops.get("cmpass"))
       .build()
       .getRootV10();
 
@@ -77,12 +84,12 @@ public class YarnApplications {
     // We'll just use the first cluster in the returned list.
     ApiCluster cluster = clusters.get(0);
     System.out.println("Cluster name=" + cluster.getName());
-      
+
     // Get a list of services for the cluster and use it to find the YARN
     // service name.
     // '/api/v10/clusters/HANA-benchmark/services'
     String yarnServiceName = null;
-    ServicesResourceV10 servicesResource = 
+    ServicesResourceV10 servicesResource =
       apiRoot.getClustersResource().getServicesResource(cluster.getName());
 
     for (ApiService service : servicesResource.readServices(DataView.FULL)) {
@@ -100,38 +107,43 @@ public class YarnApplications {
 
     // Display up to 10 applications for default of last 5 minutes to now.
     // '/api/v10/clusters/CLUSTER_NAME/services/YARN_SERVICE_NAME/yarnApplications'
-    ApiYarnApplicationResponse response = 
+    ApiYarnApplicationResponse response =
       resource.getYarnApplications(yarnServiceName,
                                    null, null, null, 10, 0);
     showApplicationInfo(response);
 
     // Display up to 10 applications from 1 hour ago to now.
-    response = 
+    response =
       resource.getYarnApplications(yarnServiceName,
-                                   null, 
-                                   new DateTime().minusHours(1).toString(), null, 
+                                   null,
+                                   new DateTime().minusHours(1).toString(),
+                                   null,
                                    10, 0);
     showApplicationInfo(response);
 
     // Display applications from 24 hours ago to 6 hours ago.
-    response = 
+    response =
       resource.getYarnApplications(yarnServiceName,
-                                   null, 
+                                   null,
                                    new DateTime().minusDays(1).toString(),
-                                   new DateTime().minusHours(6).toString(), 
+                                   new DateTime().minusHours(6).toString(),
                                    10, 0);
     showApplicationInfo(response);
 
     // Display currently executing applications only.
-    response = 
+    response =
       resource.getYarnApplications(yarnServiceName,
                                    "executing=true", null, null, 10, 0);
     showApplicationInfo(response);
   }
 
+  /**
+   * Print return from call to get info on YARN jobs.
+   */
   private static void showApplicationInfo(ApiYarnApplicationResponse response) {
     List<ApiYarnApplication> applications = response.getApplications();
-    System.out.println("Displaying " + applications.size() + " applications:");
+    System.out.println("Displaying " + applications.size() +
+                       " applications:");
     for (ApiYarnApplication application : applications) {
       System.out.println("\t ID = " + application.getApplicationId());
       System.out.println("\t name = " + application.getName());
@@ -147,12 +159,20 @@ public class YarnApplications {
       System.out.println("\t attributes:");
       Map<String, String> attrs = application.getAttributes();
       for (Map.Entry<String, String> entry : attrs.entrySet()) {
-        System.out.println("\t " + entry.getKey() + " = " + entry.getValue());
+        System.out.println("\t " + entry.getKey() + " = " +
+                           entry.getValue());
       }
     }
   }
 
-  public Properties getProperties(String propfile) 
+  /**
+   * Load a Java properties file from the classpath.
+   *
+   * @param propfile Name of file containing configuration properties.
+   * @return Populated Properties object.
+   * @throws IOException if error occurs loading property file.
+   */
+  public Properties getProperties(String propfile)
     throws IOException {
 
     InputStream in = null;
@@ -160,7 +180,7 @@ public class YarnApplications {
 
     try {
       in = getClass().getClassLoader().getResourceAsStream(propfile);
-      
+
       if (in != null) {
         props.load(in);
       } else {
@@ -169,7 +189,7 @@ public class YarnApplications {
     } finally {
       in.close();
     }
-       
+
     return props;
   }
 }
