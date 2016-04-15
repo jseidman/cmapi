@@ -57,7 +57,7 @@ import java.util.Properties;
  * <li> Set the credentials for the KDC account manager.
  * <li> Execute the API call to configure the cluster for Kerberos.
  * <li> Wait for the generate credentials command to complete.
- * <li> Startt the cluster and manager services.
+ * <li> Start the cluster and manager services.
  * <li> Deploy client configuration.
  * </ul></p>
  *
