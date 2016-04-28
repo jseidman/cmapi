@@ -258,7 +258,7 @@ public class EnableKerberos {
 
     // Start cluster services:
     System.out.println("Starting cluster services...");
-    // /api/v11/clusters/{clusterName}/commands/star
+    // /api/v11/clusters/{clusterName}/commands/start
     command = clustersResource.startCommand(clusterName);
     status = waitForCommand(command);
     System.out.println("Start cluster command completed, status = " +
@@ -266,7 +266,7 @@ public class EnableKerberos {
 
     // Start management services:
     System.out.println("Starting management services...");
-    // /api/v11/cm/service/commands/star
+    // /api/v11/cm/service/commands/start
     command = cmResource.getMgmtServiceResource().startCommand();
     status = waitForCommand(command);
     System.out.println("Start management services command completed, status = " +
