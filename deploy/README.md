@@ -57,12 +57,12 @@ After the above completes, update the cluster configuration and then execute the
 * Update **src/main/resources/cmdeploy.ini**. Comments are provided for the values in this file, but some key parameters to note for updating:
   * Make sure hostname parameters are updated, such as the Cloudera Manager host, service hosts, etc.
   * Update the **services** parameter in the **[CLUSTER]** section based on the services that should be deployed.
-  * Update the database parameters for the management services, including the host, and username/password.
+  * Update the database parameters for the management services, including the host and username/password.
   * Update service and role configurations as necessary.
 
 Before executing the deployment application, a couple of things to note:
 
-* The code currently doesn't enable a CM license, so before executing log into the CM UI and execute the trial license (or upload a valid license).
+* The code currently doesn't enable a CM license (yet), so before executing log into the CM UI and execute the trial license (or upload a valid license).
 * To help troubleshoot, set the "Enable Debugging of API" parameter in the Administration settings in the CM UI. See [Debugging Tips](http://cloudera.github.io/cm_api/docs/debugging-tips/).
 
 Finally, build and execute the deployment application:
@@ -161,6 +161,7 @@ TODOS:
 
 **General:**
 * Add HA support, including HDFS and YARN.
+* Add functionality to allow specifying a license for upload or enabling the trial license.
 * Add ability to specify the CDH version to deploy.
 * Add additional error checking and validation to code.
 * Add ability to deploy multiple clusters.
@@ -173,6 +174,7 @@ TODOS:
   * HBase
   * Accumulo
   * Search
+  * Sentry
   * Others?
 
 **Specific classes:**
